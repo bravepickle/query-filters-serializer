@@ -1,5 +1,5 @@
 {
-    "name": "ciklum-bpa/query-filters-serializer",
+    "name": "bravepickle/query-filters-serializer",
     "description": "Serializer of query filters for future use in DB",
     "keywords": ["api", "query", "search", "filters", "api filters", "parse filters"],
     "require": {
