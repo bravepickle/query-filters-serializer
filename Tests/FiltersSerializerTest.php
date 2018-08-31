@@ -3,7 +3,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use \Filter\QuerySerializer;
 
-class FiltersSerializerTest extends \PHPUnit_Framework_TestCase
+/**
+ * Class FiltersSerializerTest tests filters functionality
+ */
+class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
 {
     public function providerAge()
     {
@@ -169,6 +172,7 @@ class FiltersSerializerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider providerAge
+     * @throws \Filter\ParsingException
      */
     public function testSerializeAge($filter, $options, $expected)
     {
@@ -292,6 +296,7 @@ class FiltersSerializerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider providerName
+     * @throws \Filter\ParsingException
      */
     public function testSerializeName($filter, $options, $expected)
     {
@@ -347,6 +352,7 @@ class FiltersSerializerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider providerComposite
+     * @throws \Filter\ParsingException
      */
     public function testSerializeComposite($filter, $options, $expected)
     {
@@ -397,6 +403,7 @@ class FiltersSerializerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider providerBool
+     * @throws \Filter\ParsingException
      */
     public function testSerializeBool($filter, $options, $expected)
     {
@@ -438,6 +445,7 @@ class FiltersSerializerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider providerEnum
+     * @throws \Filter\ParsingException
      */
     public function testSerializeEnum($filter, $options, $expected)
     {

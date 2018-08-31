@@ -1,17 +1,18 @@
 {
     "name": "ciklum-bpa/query-filters-serializer",
     "description": "Serializer of query filters for future use in DB",
+    "keywords": ["api", "query", "search", "filters", "api filters", "parse filters"],
     "require": {
         "php": ">=5.3.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.*"
+        "phpunit/phpunit": ">4"
     },
     "license": "GNU LGPL",
     "authors": [
         {
             "name": "Victor K",
-            "email": "vkon@ciklum.com"
+            "email": "2bravepickle@gmail.com"
         }
     ],
     "minimum-stability": "stable",
