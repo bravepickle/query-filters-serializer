@@ -87,6 +87,9 @@ To learn more on its usage, please refer to the provided [tests]
 
  - Write Tests
  - Support of recursive embedding filters
+ - Add JS serializer
+ - Use dependency injection by splitting: Encoder, Normalizer. With interfaces, similar to Symfony's implementation
+ - Use more obects and less arrays. E.g. serializer options, return
 
 License
 ----
