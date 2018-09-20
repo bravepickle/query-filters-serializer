@@ -66,7 +66,9 @@ class EmbeddedType extends AbstractType implements QuerySerializerAwareInterface
 
         // unserialize embedded
         $this->serializer->setOption(QuerySerializer::OPT_TABLE_NAME, $this->getOption(self::OPT_TABLE_NAME, self::DEFAULT_TABLE_NAME));
-        $unserialized = $this->serializer->unserialize($data, $this->getOption(self::OPT_CONSTRAINTS, [])); // pass embedded constraints
+        $this->serializer->setOption(self::OPT_CONSTRAINTS, $this->getOption(self::OPT_CONSTRAINTS, []));
+
+        $unserialized = $this->serializer->unserialize($data); // pass embedded constraints
 
         // revert
         $this->serializer->setOption(QuerySerializer::OPT_CONSTRAINTS, $serializerConstraints);
