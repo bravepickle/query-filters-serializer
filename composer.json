@@ -1,9 +1,10 @@
 {
     "name": "bravepickle/query-filters-serializer",
     "description": "Serializer of query filters for future use in DB",
-    "keywords": ["api", "query", "search", "filters", "api filters", "parse filters"],
+    "keywords": ["api", "query", "search", "filters", "api filters", "parse filters", "request query filter"],
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.4.0",
+        "ext-mbstring": "*"
     },
     "require-dev": {
         "phpunit/phpunit": ">4"

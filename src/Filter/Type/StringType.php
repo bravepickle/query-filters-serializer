@@ -2,12 +2,12 @@
 /**
  */
 
-namespace QueryFilterSerializer\Filter\Serializer;
+namespace QueryFilterSerializer\Filter\Type;
 
 
 use QueryFilterSerializer\Filter\ParsingException;
 
-class StringSerializer extends AbstractSerializer
+class StringType extends AbstractType
 {
     const NAME = 'string';
 
@@ -33,6 +33,11 @@ class StringSerializer extends AbstractSerializer
         // TODO: Implement serialize() method.
     }
 
+    /**
+     * @param $data
+     * @return array
+     * @throws ParsingException
+     */
     public function unserialize($data)
     {
         if (!$data) {
@@ -123,7 +128,7 @@ class StringSerializer extends AbstractSerializer
             $fieldPh = $num > 1 ? $fieldPhBase . $num : $fieldPhBase;
             $num++;
             switch ($constraint['condition']) {
-                case StringSerializer::COND_NOT_EQUALS:
+                case StringType::COND_NOT_EQUALS:
                     if (is_array($constraint['value']) && count($constraint['value']) > 1) {
                         $sql[] = [
                             'sql' => $tableAlias . '.' . $filter['field'] . ' NOT IN(:' . $fieldPh . ')',
@@ -141,7 +146,7 @@ class StringSerializer extends AbstractSerializer
                         ];
                     }
                     break;
-                case StringSerializer::COND_EQUALS:
+                case StringType::COND_EQUALS:
                     if (is_array($constraint['value']) && count($constraint['value']) > 1) {
                         $sql[] = [
                             'sql' => $tableAlias . '.' . $filter['field'] . ' IN(:' . $fieldPh . ')',

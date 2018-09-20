@@ -2,14 +2,15 @@
 /**
  */
 
-namespace QueryFilterSerializer\Filter\Serializer;
+namespace QueryFilterSerializer\Filter\Type;
 
 
+use QueryFilterSerializer\Filter\FieldFilter;
 use QueryFilterSerializer\Filter\ParsingException;
 use QueryFilterSerializer\Filter\QuerySerializer;
 use QueryFilterSerializer\Filter\QuerySerializerAwareInterface;
 
-class EmbeddedSerializer extends AbstractSerializer implements QuerySerializerAwareInterface
+class EmbeddedType extends AbstractType implements QuerySerializerAwareInterface
 {
     const NAME = 'embedded';
 
@@ -38,11 +39,20 @@ class EmbeddedSerializer extends AbstractSerializer implements QuerySerializerAw
     }
 
 
+    /**
+     * @param array $data
+     * @throws ParsingException
+     */
     public function serialize(array $data)
     {
         throw new ParsingException('TODO: Implement ' . __METHOD__);
     }
 
+    /**
+     * @param $data
+     * @return array
+     * @throws ParsingException
+     */
     public function unserialize($data)
     {
         $data = trim($data, self::WRAP_RIGHT . self::WRAP_LEFT); // remove wrapper
@@ -77,8 +87,8 @@ class EmbeddedSerializer extends AbstractSerializer implements QuerySerializerAw
 
         if (isset($data['constraints'])) {
             foreach ($data['constraints'] as $fieldOpts) {
-                if (isset($fieldOpts['sql_parts'])) {
-                    foreach ($fieldOpts['sql_parts'] as $part) {
+                if (isset($fieldOpts[FieldFilter::KEY_SQL_PARTS])) {
+                    foreach ($fieldOpts[FieldFilter::KEY_SQL_PARTS] as $part) {
                        $output[] = $part;
                     }
                 }

@@ -7,8 +7,8 @@
 
 namespace QueryFilterSerializer\Filter;
 
-use QueryFilterSerializer\Filter\Serializer\AbstractSerializer;
-use QueryFilterSerializer\Filter\Serializer\EmbeddedSerializer;
+use QueryFilterSerializer\Filter\Type\AbstractType;
+use QueryFilterSerializer\Filter\Type\EmbeddedType;
 
 class QuerySerializer
 {
@@ -28,7 +28,7 @@ class QuerySerializer
         self::OPT_NAME_VALUE_DELIMITER => ':', // value-name delimiter
         self::OPT_CONSTRAINT_DELIMITER => '|', // constraint delimiter between each filter
         self::OPT_CONSTRAINTS => array(), // constraints block name
-        self::OPT_CONSTRAINTS_NAMESPACE => '\QueryFilterSerializer\Filter\Serializer', // constraints namespace
+        self::OPT_CONSTRAINTS_NAMESPACE => '\QueryFilterSerializer\Filter\Type', // constraints namespace
         self::OPT_CONSTRAINT_TYPE => 'type',
         self::OPT_CONSTRAINT_OPTIONS => 'options',
         self::OPT_RETURN_OBJECT => false,
@@ -66,6 +66,12 @@ class QuerySerializer
         return array_key_exists($name, $this->options) ? $this->options[$name] : $default;
     }
 
+    /**
+     * @param $name
+     * @param $value
+     * @return $this
+     * @throws ParsingException
+     */
     public function setOption($name, $value)
     {
         if (!array_key_exists($name, $this->options)) {
@@ -128,11 +134,11 @@ class QuerySerializer
 
     /**
      * @param $name
-     * @return \QueryFilterSerializer\Filter\Serializer\AbstractSerializer
+     * @return \QueryFilterSerializer\Filter\Type\AbstractType
      */
     public function getSerializerTypeByName($name)
     {
-        $fullClassName = $this->options[self::OPT_CONSTRAINTS_NAMESPACE] . '\\' . ucwords($name) . 'Serializer';
+        $fullClassName = $this->options[self::OPT_CONSTRAINTS_NAMESPACE] . '\\' . ucwords($name) . 'Type';
 
         if (isset($this->serializers[$fullClassName])) {
             return $this->serializers[$fullClassName];
@@ -165,7 +171,7 @@ class QuerySerializer
      * @param $pairs
      * @param $name
      * @param $parsed
-     * @param AbstractSerializer $typeSerializer
+     * @param AbstractType $typeSerializer
      * @return mixed
      */
     protected function initFieldFilterArr($pairs, $name, $parsed, $typeSerializer)
@@ -183,7 +189,7 @@ class QuerySerializer
             $this->options[self::OPT_CONSTRAINTS][$name]['name'] : $name;
 
         if ($this->options[self::OPT_BUILD_SQL_PARTS]) { // build SQL parts?
-            $pairs[$name]['sql_parts'] = $typeSerializer->buildSqlParts($pairs[$name], $this->getOption(self::OPT_TABLE_NAME, self::DEFAULT_TABLE_NAME));
+            $pairs[$name][FieldFilter::KEY_SQL_PARTS] = $typeSerializer->buildSqlParts($pairs[$name], $this->getOption(self::OPT_TABLE_NAME, self::DEFAULT_TABLE_NAME));
 
             // TODO: update fieldfilter objects to support DQLs!
         }
@@ -285,11 +291,12 @@ class QuerySerializer
      * @param $placeholderEmbed
      * @param $constraints
      * @param $replaces
+     * @return null|array
      */
     protected function setPlaceholdersForEmbedded($delim, &$tpl, $placeholderEmbed, $constraints, &$replaces = null)
     {
         $fieldTypes = array_column($constraints, 'type');
-        if (in_array(EmbeddedSerializer::NAME, $fieldTypes)) { // do we have embedded queries?
+        if (in_array(EmbeddedType::NAME, $fieldTypes)) { // do we have embedded queries?
             // TODO: dive in deeper... recursion
 
             // after recursion...
@@ -297,7 +304,7 @@ class QuerySerializer
             $quotedDelim = preg_quote($delim, '~');
             foreach ($constraints as $field => &$options) {
                 // is embedded
-                if (isset($options['type']) && $options['type'] == EmbeddedSerializer::NAME) {
+                if (isset($options['type']) && $options['type'] == EmbeddedType::NAME) {
                     // TODO: embedded recursion...
                     // children have also embedded fields
 //                    if (isset($options['options'][EmbeddedSerializer::OPT_CONSTRAINTS])) {
@@ -306,8 +313,8 @@ class QuerySerializer
 //                    }
 
                     $quotedName = preg_quote($field, '~');
-                    $wrapLeft = preg_quote(EmbeddedSerializer::WRAP_LEFT, '~');
-                    $wrapRight = preg_quote(EmbeddedSerializer::WRAP_RIGHT, '~');
+                    $wrapLeft = preg_quote(EmbeddedType::WRAP_LEFT, '~');
+                    $wrapRight = preg_quote(EmbeddedType::WRAP_RIGHT, '~');
                     $pattern = "~($quotedName:$wrapLeft)" .
                         "([^$wrapRight]*{$quotedDelim}[^$wrapRight]*)" .
                         "($wrapRight(?:$quotedDelim|$))~iU";
@@ -316,6 +323,7 @@ class QuerySerializer
                             $templated = str_replace($delim, $placeholderEmbed, $subquery);
                             $tpl = str_replace($matches[0][$key], $matches[1][$key] . $templated . $matches[3][$key], $tpl);
                         }
+
                         return $matches;
                     }
                 }

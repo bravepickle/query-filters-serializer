@@ -2,12 +2,12 @@
 /**
  */
 
-namespace QueryFilterSerializer\Filter\Serializer;
+namespace QueryFilterSerializer\Filter\Type;
 
 
 use QueryFilterSerializer\Filter\ParsingException;
 
-class EnumSerializer extends StringSerializer
+class EnumType extends StringType
 {
     const NAME = 'enum';
 
@@ -27,8 +27,9 @@ class EnumSerializer extends StringSerializer
     /**
      * Create piece of SQL with placeholder and values
      * @param $data
-     * @param $tableAlias
-     * @return array first element is string, the second - list of values
+     * @param string $tableAlias
+     * @return void first element is string, the second - list of values
+     * @throws ParsingException
      */
     public function buildSqlParts($data, $tableAlias = 't')
     {

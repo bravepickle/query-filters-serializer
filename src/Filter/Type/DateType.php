@@ -5,13 +5,13 @@
  * Time: 21:28
  */
 
-namespace QueryFilterSerializer\Filter\Serializer;
+namespace QueryFilterSerializer\Filter\Type;
 
 
 use QueryFilterSerializer\Filter\ParsingException;
 use QueryFilterSerializer\Helper\Formatter;
 
-class DateSerializer extends AbstractSerializer
+class DateType extends AbstractType
 {
     const NAME = 'date';
 
@@ -31,11 +31,19 @@ class DateSerializer extends AbstractSerializer
         'date_format' => 'Y-m-d',
     );
 
+    /**
+     * @param array $data
+     */
     public function serialize(array $data)
     {
 
     }
 
+    /**
+     * @param $data
+     * @return array
+     * @throws ParsingException
+     */
     public function unserialize($data)
     {
         if (!$data) {
@@ -54,6 +62,10 @@ class DateSerializer extends AbstractSerializer
         return $results;
     }
 
+    /**
+     * @param $results
+     * @throws ParsingException
+     */
     protected function optimizeResults(&$results)
     {
         if (!$this->getOption('optimize', true)) {
@@ -99,13 +111,18 @@ class DateSerializer extends AbstractSerializer
                     $newConstraints[] = array('condition' => $op, 'value' => $groupVals);
                     break;
                 default:
-                    throw new ParseException('Undefined behavior for condition: ' . $op);
+                    throw new ParsingException('Undefined behavior for condition: ' . $op);
             }
         }
 
         $results = $newConstraints;
     }
 
+    /**
+     * @param $val
+     * @return array
+     * @throws ParsingException
+     */
     protected function parseValue($val)
     {
         if (is_numeric($val{0})) { // is number

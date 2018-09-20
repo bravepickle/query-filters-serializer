@@ -5,20 +5,19 @@
  * Time: 21:28
  */
 
-namespace QueryFilterSerializer\Filter\Serializer;
+namespace QueryFilterSerializer\Filter\Type;
 
 
 use QueryFilterSerializer\Filter\ParsingException;
 use QueryFilterSerializer\Helper\Formatter;
 
-class IntegerSerializer extends AbstractSerializer
+class DatetimeType extends AbstractType
 {
-    const NAME = 'integer';
+    const NAME = 'datetime';
 
     const OPT_ALLOW_RANGES = 'ranges';
-    const OPT_ALLOW_LIMITED = 'limited'; // limit the conditionals that are allowed for the filter
+    const COND_DELIMITER = ','; // delimiter that is used to split multiple values in encoded string
 
-    const COND_DELIMITER = ';'; // delimiter that is used to split multiple values in encoded string
     const COND_EQUALS = 'eq'; // for portability we use textual representation
     const COND_NOT_EQUALS = 'neq';
     const COND_LESS_THAN_OR_EQUALS = 'lte';
@@ -26,28 +25,34 @@ class IntegerSerializer extends AbstractSerializer
     const COND_LESS_THAN = 'lt';
     const COND_GREATER_THAN = 'gt';
 
-    // TODO: add option to set delimiter
     protected $options = array(
         'ranges' => true,       // do we allow to set ranges: >, >=, = etc.
         'optimize' => true,
+        'date_format' => 'Y-m-d\TH:i:sP',
     );
 
+    /**
+     * @param array $data
+     */
     public function serialize(array $data)
     {
 
     }
 
+    /**
+     * @param $data
+     * @return array
+     * @throws ParsingException
+     */
     public function unserialize($data)
     {
-        if (null === $data) {
+        if (!$data) {
             return array();
         }
 
-        $values = array_filter(array_unique(explode(self::COND_DELIMITER, $data)), function($val) {
-            return $val !== '';
-        });
-
+        $values = array_filter(array_unique(explode(self::COND_DELIMITER, $data)));
         $results = array();
+
         foreach ($values as $val) {
             $results[] = $this->parseValue($val);
         }
@@ -57,6 +62,10 @@ class IntegerSerializer extends AbstractSerializer
         return $results;
     }
 
+    /**
+     * @param $results
+     * @throws ParsingException
+     */
     protected function optimizeResults(&$results)
     {
         if (!$this->getOption('optimize', true)) {
@@ -72,7 +81,7 @@ class IntegerSerializer extends AbstractSerializer
                 case self::COND_GREATER_THAN_OR_EQUALS:
                     $groupVals = array_keys($group);
                     $max = max($groupVals);
-                    if (null !== $max) { // has at least one value
+                    if ($max) {
                         foreach ($group[$max] as $constraint) {
                             $newConstraints[] = $constraint;
                         }
@@ -82,7 +91,7 @@ class IntegerSerializer extends AbstractSerializer
                 case self::COND_LESS_THAN_OR_EQUALS:
                     $groupVals = array_keys($group);
                     $min = min($groupVals);
-                    if (null !== $min) {
+                    if ($min) {
                         foreach ($group[$min] as $constraint) {
                             $newConstraints[] = $constraint;
                         }
@@ -90,17 +99,30 @@ class IntegerSerializer extends AbstractSerializer
                     break;
                 case self::COND_NOT_EQUALS:
                 case self::COND_EQUALS:
-                    $groupVals = array_keys($group);
+                    $groupVals = [];
+                    foreach ($group as $key => &$constraints) {
+                        foreach ($constraints as &$constraint) {
+                            $groupVals[] = $constraint['value'];
+                            break;
+                        }
+
+                    }
+
                     $newConstraints[] = array('condition' => $op, 'value' => $groupVals);
                     break;
                 default:
-                    throw new ParseException('Undefined behavior for condition: ' . $op);
+                    throw new ParsingException('Undefined behavior for condition: ' . $op);
             }
         }
 
         $results = $newConstraints;
     }
 
+    /**
+     * @param $val
+     * @return array
+     * @throws ParsingException
+     */
     protected function parseValue($val)
     {
         if (is_numeric($val{0})) { // is number
@@ -123,10 +145,13 @@ class IntegerSerializer extends AbstractSerializer
             $res['condition'] = $mappedConditions[$res['condition']];
         }
 
-        if (!is_numeric($res['value'])) {
-            throw new ParsingException('Expected numeric value: ' . $res['value']);
+        $date = date_create_from_format($this->getOption('date_format'), $res['value']);
+
+        if ($date === false) {
+            throw new ParsingException('Expected datetime value: ' . $res['value']);
         }
 
+        $res['value'] = $date;
 
         return $res;
     }
@@ -161,41 +186,40 @@ class IntegerSerializer extends AbstractSerializer
     {
         $sql = [];
         $fieldPhBase = $tableAlias . '_' . $filter['field'];
-        // TODO: return assoc arrays of strings with values instead of using builder ?
         $num = 1;
         foreach ($filter['constraints'] as $constraint) {
             $fieldPh = $num > 1 ? $fieldPhBase . $num : $fieldPhBase;
             $num++;
             switch ($constraint['condition']) {
-                case IntegerSerializer::COND_GREATER_THAN:
+                case self::COND_GREATER_THAN:
                     $value = is_array($constraint['value']) ? max($constraint['value']) : $constraint['value'];
                     $sql[] = [
                         'sql' => $tableAlias . '.' . $filter['field'] . ' > :' . $fieldPh,
                         'parameter' => [$fieldPh => $value]
                     ];
                     break;
-                case IntegerSerializer::COND_GREATER_THAN_OR_EQUALS:
+                case self::COND_GREATER_THAN_OR_EQUALS:
                     $value = is_array($constraint['value']) ? max($constraint['value']) : $constraint['value'];
                     $sql[] = [
                         'sql' => $tableAlias . '.' . $filter['field'] . ' >= :' . $fieldPh,
                         'parameter' => [$fieldPh => $value]
                     ];
                     break;
-                case IntegerSerializer::COND_LESS_THAN:
+                case self::COND_LESS_THAN:
                     $value = is_array($constraint['value']) ? min($constraint['value']) : $constraint['value'];
                     $sql[] = [
                         'sql' => $tableAlias . '.' . $filter['field'] . ' < :' . $fieldPh,
                         'parameter' => [$fieldPh => $value]
                     ];
                     break;
-                case IntegerSerializer::COND_LESS_THAN_OR_EQUALS:
+                case self::COND_LESS_THAN_OR_EQUALS:
                     $value = is_array($constraint['value']) ? min($constraint['value']) : $constraint['value'];
                     $sql[] = [
                         'sql' => $tableAlias . '.' . $filter['field'] . ' <= :' . $fieldPh,
                         'parameter' => [$fieldPh => $value]
                     ];
                     break;
-                case IntegerSerializer::COND_NOT_EQUALS:
+                case self::COND_NOT_EQUALS:
                     if (is_array($constraint['value']) && count($constraint['value']) > 1) {
                         $sql[] = [
                             'sql' => $tableAlias . '.' . $filter['field'] . ' NOT IN(:' . $fieldPh . ')',
@@ -208,7 +232,7 @@ class IntegerSerializer extends AbstractSerializer
                         ];
                     }
                     break;
-                case IntegerSerializer::COND_EQUALS:
+                case self::COND_EQUALS:
                     if (is_array($constraint['value']) && count($constraint['value']) > 1) {
                         $sql[] = [
                             'sql' => $tableAlias . '.' . $filter['field'] . ' IN(:' . $fieldPh . ')',

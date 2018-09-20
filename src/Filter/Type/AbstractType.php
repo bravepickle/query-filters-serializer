@@ -1,10 +1,12 @@
 <?php
 
-namespace QueryFilterSerializer\Filter\Serializer;
+namespace QueryFilterSerializer\Filter\Type;
 
 
-abstract class AbstractSerializer
+abstract class AbstractType
 {
+    const NAME = 'UNKNOWN';
+
     protected $options = array();
 
     /**
@@ -14,6 +16,7 @@ abstract class AbstractSerializer
     public function setOptions($options)
     {
         $this->options = array_merge($this->options, $options);
+
         return $this;
     }
 

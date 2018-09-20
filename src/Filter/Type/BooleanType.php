@@ -2,12 +2,12 @@
 /**
  */
 
-namespace QueryFilterSerializer\Filter\Serializer;
+namespace QueryFilterSerializer\Filter\Type;
 
 
 use QueryFilterSerializer\Filter\ParsingException;
 
-class BooleanSerializer extends AbstractSerializer
+class BooleanType extends AbstractType
 {
     const NAME = 'boolean';
 
@@ -28,13 +28,13 @@ class BooleanSerializer extends AbstractSerializer
 
     public function serialize(array $data)
     {
-        foreach ($data as $yes) {
-            if ($yes === true) {
+        foreach ($data as $value) {
+            if ($value === true) {
                 return $this->getOption(self::OPT_TRUE, self::DEFAULT_TRUE);
-            } elseif ($yes === false) {
+            } elseif ($value === false) {
                 return $this->getOption(self::OPT_FALSE, self::DEFAULT_FALSE);
             } elseif ($this->getOption(self::OPT_DEFAULT, self::DEFAULT_VALUE) === null) {
-                return !empty($yes) ? $this->getOption(self::OPT_TRUE, self::DEFAULT_TRUE) :
+                return !empty($value) ? $this->getOption(self::OPT_TRUE, self::DEFAULT_TRUE) :
                     $this->getOption(
                         self::OPT_FALSE,
                         self::DEFAULT_FALSE
@@ -48,8 +48,15 @@ class BooleanSerializer extends AbstractSerializer
                     $this->getOption(self::OPT_FALSE, self::DEFAULT_FALSE);
             }
         }
-      }
 
+        return $this->getOption(self::OPT_DEFAULT, self::DEFAULT_VALUE);
+    }
+
+    /**
+     * @param $data
+     * @return array
+     * @throws ParsingException
+     */
     public function unserialize($data)
     {
         if ($this->getOption(self::OPT_TRUE, self::DEFAULT_TRUE) === $data) {
