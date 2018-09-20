@@ -11,81 +11,42 @@ use QueryFilterSerializer\Filter\Type\EmbeddedType;
 
 class QuerySerializer implements SerializerInterface
 {
-    const OPT_NAME_VALUE_DELIMITER = 'field_value_delimiter';
-    const OPT_CONSTRAINT_DELIMITER = 'constraint_delimiter';
-    const OPT_CONSTRAINTS = 'constraints';
-    const OPT_CONSTRAINTS_NAMESPACE = 'constraints_namespace';
-    const OPT_CONSTRAINT_TYPE = 'constraint_type'; // type of constraint
-    const OPT_CONSTRAINT_OPTIONS = 'constraint_options'; // options of constraint
-    const OPT_RETURN_OBJECT = 'return_object'; // return objects instead of arrays
-    const OPT_ESCAPE_STR = 'escape_str'; // escape string sequence
-    const OPT_BUILD_SQL_PARTS = 'build_sql'; // should the serializer build additionally DQL parts with params?
-    const OPT_TABLE_NAME = 'table_name';
-    const OPT_ENCODING = 'encoding';
-    const DEFAULT_TABLE_NAME = 't';
-
-    protected $options = array(
-        self::OPT_NAME_VALUE_DELIMITER => ':', // value-name delimiter
-        self::OPT_CONSTRAINT_DELIMITER => '|', // constraint delimiter between each filter
-        self::OPT_CONSTRAINTS => array(), // constraints block name
-        self::OPT_CONSTRAINTS_NAMESPACE => '\QueryFilterSerializer\Filter\Type', // constraints namespace
-        self::OPT_CONSTRAINT_TYPE => 'type',
-        self::OPT_CONSTRAINT_OPTIONS => 'options',
-        self::OPT_RETURN_OBJECT => false,
-        self::OPT_BUILD_SQL_PARTS => false,
-        self::OPT_ENCODING => 'UTF-8',
-        self::OPT_ESCAPE_STR => '\\',
-        self::OPT_TABLE_NAME => self::DEFAULT_TABLE_NAME,
-    );
+    /**
+     * @var Options
+     */
+    protected $options;
 
     /**
      * @var array
      */
     protected $filterTypes = array();
 
-    public function __construct($options = array())
+    /**
+     * QuerySerializer constructor.
+     * @param Options|null $options
+     */
+    public function __construct(Options $options = null)
     {
-        $this->options = array_merge($this->options, $options); // TODO: array merge
+        $this->options = $options === null ? $options : new Options();
     }
 
     /**
-     * @param $options
+     * @param Options|null $options
      * @return $this
      */
-    public function setOptions($options)
+    public function setOptions(Options $options = null)
     {
-        $this->options = array_merge($this->options, $options);
+        $this->options = $options;
 
         return $this;
     }
 
     /**
-     * @return array
+     * @return Options
      */
     public function getOptions()
     {
         return $this->options;
-    }
-
-    public function getOption($name, $default = null)
-    {
-        return array_key_exists($name, $this->options) ? $this->options[$name] : $default;
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     * @return $this
-     * @throws ParsingException
-     */
-    public function setOption($name, $value)
-    {
-        if (!array_key_exists($name, $this->options)) {
-            throw new ParsingException('Unknown option given: ' . $name);
-        }
-        $this->options[$name] = $value;
-
-        return $this;
     }
 
     /**
@@ -108,9 +69,9 @@ class QuerySerializer implements SerializerInterface
             $sub = $this->splitKeyValue($constraint);
             list($name, $value) = $sub;
 
-            $modType = $this->options[self::OPT_CONSTRAINT_TYPE];
+            $modType = $this->options->constraintType;
 
-            if (!isset($this->options[self::OPT_CONSTRAINTS][$name][$modType])) {
+            if (!isset($this->options->constraints[$name][$modType])) {
                 throw new ParsingException('Failed to read options on query filter field: ' . $name);
             }
 
@@ -121,7 +82,7 @@ class QuerySerializer implements SerializerInterface
             }
         }
 
-        if ($this->options[self::OPT_RETURN_OBJECT]) {
+        if ($this->options->returnObject) {
             return $this->wrapArrayToConstraints($pairs);
         }
 
@@ -139,7 +100,7 @@ class QuerySerializer implements SerializerInterface
      */
     public function getSerializerTypeByName($name)
     {
-        $fullClassName = $this->options[self::OPT_CONSTRAINTS_NAMESPACE] . '\\' . ucwords($name) . 'Type';
+        $fullClassName = $this->options->constraintsNamespace . '\\' . ucwords($name) . 'Type';
 
         if (isset($this->filterTypes[$fullClassName])) {
             return $this->filterTypes[$fullClassName];
@@ -186,13 +147,13 @@ class QuerySerializer implements SerializerInterface
         $pairs[$name]['type'] = $typeSerializer->getName();
 
         // define field name by alias or leave as it is
-        $pairs[$name]['field'] = isset($this->options[self::OPT_CONSTRAINTS][$name]['name']) ?
-            $this->options[self::OPT_CONSTRAINTS][$name]['name'] : $name;
+        $pairs[$name]['field'] = isset($this->options->constraints[$name]['name']) ?
+            $this->options->constraints[$name]['name'] : $name;
 
-        if ($this->options[self::OPT_BUILD_SQL_PARTS]) { // build SQL parts?
-            $pairs[$name][FieldFilter::KEY_SQL_PARTS] = $typeSerializer->buildSqlParts($pairs[$name], $this->getOption(self::OPT_TABLE_NAME, self::DEFAULT_TABLE_NAME));
+        if ($this->options->buildSql) { // build SQL parts?
+            $pairs[$name][FieldFilter::KEY_SQL_PARTS] = $typeSerializer->buildSqlParts($pairs[$name], $this->options->tableName);
 
-            // TODO: update fieldfilter objects to support DQLs!
+            // TODO: update FieldFilter objects to support DQLs!
         }
 
         return $pairs;
@@ -206,12 +167,12 @@ class QuerySerializer implements SerializerInterface
      */
     protected function parseFilterData($name, $modType, $value)
     {
-        $typeSerializer = $this->getSerializerTypeByName($this->options[self::OPT_CONSTRAINTS][$name][$modType]);
+        $typeSerializer = $this->getSerializerTypeByName($this->options->constraints[$name][$modType]);
 
-        $modOpt = $this->options[self::OPT_CONSTRAINT_OPTIONS];
+        $modOpt = $this->options->constraintOptions;
 
-        if (isset($this->options[self::OPT_CONSTRAINTS][$name][$modOpt])) {
-            $typeSerializer->setOptions($this->options[self::OPT_CONSTRAINTS][$name][$modOpt]);
+        if (isset($this->options->constraints[$name][$modOpt])) {
+            $typeSerializer->setOptions($this->options->constraints[$name][$modOpt]);
         }
 
         $parsed = $typeSerializer->unserialize($value);
@@ -220,7 +181,7 @@ class QuerySerializer implements SerializerInterface
     }
 
     /**
-     * @param $constraint
+     * @param $value
      * @return array
      * @throws ParsingException
      */
@@ -232,15 +193,15 @@ class QuerySerializer implements SerializerInterface
 
         $strPos = mb_strpos(
             $value,
-            $this->getOption(self::OPT_NAME_VALUE_DELIMITER),
+            $this->options->nameValueDelimiter,
             null,
-            $this->getOption('encoding')
+            $this->options->encoding
         );
-        $strLen = mb_strlen($this->options[self::OPT_NAME_VALUE_DELIMITER], $this->getOption('encoding'));
+        $strLen = mb_strlen($this->options->nameValueDelimiter, $this->options->encoding);
 
         return array(
-            mb_substr($value, 0, $strPos, $this->getOption('encoding')),
-            mb_substr($value, $strPos + $strLen, null, $this->getOption('encoding')),
+            mb_substr($value, 0, $strPos, $this->options->encoding),
+            mb_substr($value, $strPos + $strLen, null, $this->options->encoding),
         );
     }
 
@@ -248,9 +209,9 @@ class QuerySerializer implements SerializerInterface
     {
         return mb_strpos(
             $value,
-            $this->getOption(self::OPT_NAME_VALUE_DELIMITER),
+            $this->options->nameValueDelimiter,
             null,
-            $this->getOption('encoding')
+            $this->options->encoding
         ) !== false;
     }
 
@@ -263,12 +224,12 @@ class QuerySerializer implements SerializerInterface
         $placeholder = '%!$_TMP_$!%';
         $placeholderEsc = '%_$_TMP_$_%';
         $placeholderEmbed = '%_$_EMB_$_%';
-        $delim = $this->options[self::OPT_CONSTRAINT_DELIMITER];
+        $delim = $this->options->constraintDelimiter;
 
-        $esc = $this->getOption(self::OPT_ESCAPE_STR);
+        $esc = $this->options->escapeStr;
         $tpl = str_replace(array($esc . $esc, $esc . $delim), array($placeholderEsc, $placeholder), $query);
 
-        $this->setPlaceholdersForEmbedded($delim, $tpl, $placeholderEmbed, $this->getOption(self::OPT_CONSTRAINTS), $replaces);
+        $this->setPlaceholdersForEmbedded($delim, $tpl, $placeholderEmbed, $this->options->constraints, $replaces);
 
         $vals = explode($delim, $tpl);
 

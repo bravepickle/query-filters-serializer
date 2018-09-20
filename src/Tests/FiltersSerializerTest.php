@@ -211,11 +211,15 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider providerAge
+     * @param $filter
+     * @param $options
+     * @param $expected
+     * @throws \QueryFilterSerializer\Filter\ParsingException
      */
     public function testSerializeAge($filter, $options, $expected)
     {
         $serializer = new QuerySerializer();
-        $serializer->setOptions($options);
+        $serializer->setOptions($this->genOptions($options));
         $serialization = $serializer->unserialize($filter);
 
         $this->assertEquals($expected, $serialization);
@@ -334,11 +338,15 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider providerName
+     * @param $filter
+     * @param $options
+     * @param $expected
+     * @throws \QueryFilterSerializer\Filter\ParsingException
      */
     public function testSerializeName($filter, $options, $expected)
     {
         $serializer = new QuerySerializer();
-        $serializer->setOptions($options);
+        $serializer->setOptions($this->genOptions($options));
         $serialization = $serializer->unserialize($filter);
 
         $this->assertEquals($expected, $serialization);
@@ -389,11 +397,15 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider providerComposite
+     * @param $filter
+     * @param $options
+     * @param $expected
+     * @throws \QueryFilterSerializer\Filter\ParsingException
      */
     public function testSerializeComposite($filter, $options, $expected)
     {
         $serializer = new QuerySerializer();
-        $serializer->setOptions($options);
+        $serializer->setOptions($this->genOptions($options));
         $serialization = $serializer->unserialize($filter);
 
         $this->assertEquals($expected, $serialization);
@@ -439,11 +451,15 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider providerBool
+     * @param $filter
+     * @param $options
+     * @param $expected
+     * @throws \QueryFilterSerializer\Filter\ParsingException
      */
     public function testSerializeBool($filter, $options, $expected)
     {
         $serializer = new QuerySerializer();
-        $serializer->setOptions($options);
+        $serializer->setOptions($this->genOptions($options));
         $serialization = $serializer->unserialize($filter);
 
         $this->assertEquals($expected, $serialization);
@@ -480,11 +496,15 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider providerEnum
+     * @param $filter
+     * @param $options
+     * @param $expected
+     * @throws \QueryFilterSerializer\Filter\ParsingException
      */
     public function testSerializeEnum($filter, $options, $expected)
     {
         $serializer = new QuerySerializer();
-        $serializer->setOptions($options);
+        $serializer->setOptions($this->genOptions($options));
         $serialization = $serializer->unserialize($filter);
 
         $this->assertEquals($expected, $serialization);
@@ -783,11 +803,15 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider providerSql
+     * @param $filter
+     * @param $options
+     * @param $expected
+     * @throws \QueryFilterSerializer\Filter\ParsingException
      */
     public function testSerializeSqlParts($filter, $options, $expected)
     {
         $serializer = new QuerySerializer();
-        $serializer->setOptions($options);
+        $serializer->setOptions($this->genOptions($options));
         $serialization = $serializer->unserialize($filter);
 
         $this->assertEquals($expected, $serialization);
@@ -965,11 +989,15 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider providerDateFrom
+     * @param $filter
+     * @param $options
+     * @param $expected
+     * @throws \QueryFilterSerializer\Filter\ParsingException
      */
     public function testDateTime($filter, $options, $expected)
     {
         $serializer = new QuerySerializer();
-        $serializer->setOptions($options);
+        $serializer->setOptions($this->genOptions($options));
         $serialization = $serializer->unserialize($filter);
 
         $this->assertEquals($expected, $serialization);
@@ -1273,13 +1301,37 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider providerEmbedded
+     * @param $filter
+     * @param $options
+     * @param $expected
+     * @throws \QueryFilterSerializer\Filter\ParsingException
      */
     public function testEmbedded($filter, $options, $expected)
     {
         $serializer = new QuerySerializer();
-        $serializer->setOptions($options);
+        $serializer->setOptions($this->genOptions($options));
         $serialization = $serializer->unserialize($filter);
 
         $this->assertEquals($expected, $serialization);
+    }
+
+    /**
+     * @param array $data
+     * @return \QueryFilterSerializer\Filter\Options
+     */
+    protected function genOptions(array $data)
+    {
+        $options = new \QueryFilterSerializer\Filter\Options();
+        $options->constraints = isset($data['constraints']) ? $data['constraints'] : [];
+
+        if (isset($data['return_object'])) {
+            $options->returnObject = $data['return_object'];
+        }
+
+        if (isset($data['build_sql'])) {
+            $options->buildSql = $data['build_sql'];
+        }
+
+        return $options;
     }
 }
