@@ -20,7 +20,9 @@
         "bin-dir": "bin"
     },
     "autoload": {
-        "psr-0": { "": "" }
+        "psr-4": {
+            "QueryFilterSerializer\\": "src/"
+        }
     },
     "extra": {
         "branch-alias": {
