@@ -7,7 +7,6 @@
 
 namespace QueryFilterSerializer\Filter;
 
-use QueryFilterSerializer\Filter\Type\AbstractType;
 use QueryFilterSerializer\Filter\Type\EmbeddedType;
 
 class QuerySerializer
@@ -134,7 +133,7 @@ class QuerySerializer
 
     /**
      * @param $name
-     * @return \QueryFilterSerializer\Filter\Type\AbstractType
+     * @return QueryFilterTypeInterface
      */
     public function getSerializerTypeByName($name)
     {
@@ -171,7 +170,7 @@ class QuerySerializer
      * @param $pairs
      * @param $name
      * @param $parsed
-     * @param AbstractType $typeSerializer
+     * @param QueryFilterTypeInterface $typeSerializer
      * @return mixed
      */
     protected function initFieldFilterArr($pairs, $name, $parsed, $typeSerializer)

@@ -3,7 +3,9 @@
 namespace QueryFilterSerializer\Filter\Type;
 
 
-abstract class AbstractType
+use QueryFilterSerializer\Filter\QueryFilterTypeInterface;
+
+abstract class AbstractType implements QueryFilterTypeInterface
 {
     const NAME = 'UNKNOWN';
 

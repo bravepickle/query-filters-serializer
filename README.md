@@ -89,7 +89,9 @@ To learn more on its usage, please refer to the provided [tests]
  - Support of recursive embedding filters
  - Add JS serializer
  - Use dependency injection by splitting: Encoder, Normalizer. With interfaces, similar to Symfony's implementation
- - Use more obects and less arrays. E.g. serializer options, return
+ - Use more objects and less arrays. E.g. serializer options, return
+ - Use register method or DI for types add to serializer
+ - Use interfaces in definitions instead of classes, when possible
 
 License
 ----
