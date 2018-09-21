@@ -5,11 +5,12 @@
 namespace QueryFilterSerializer\Filter\Type;
 
 
-use QueryFilterSerializer\Filter\ParsingException;
+use QueryFilterSerializer\Exception\ParsingException;
 
 class StringType extends AbstractType
 {
     const NAME = 'string';
+    const MAX_DEPTH = 1;
 
     const COND_DELIMITER = ';';
     const COND_NOT_STR = '!';
@@ -26,8 +27,6 @@ class StringType extends AbstractType
         'partial' => false,
     );
 
-
-
     public function serialize(array $data)
     {
         // TODO: Implement serialize() method.
@@ -37,6 +36,7 @@ class StringType extends AbstractType
      * @param $data
      * @return array
      * @throws ParsingException
+     * @throws \QueryFilterSerializer\Exception\ArrayMaxDepthException
      */
     public function unserialize($data)
     {
@@ -44,7 +44,10 @@ class StringType extends AbstractType
             return array();
         }
 
-        $values = $this->getOption('multiple') ? $this->explodeVals($data) : array($data);
+        $this->checkArrayDepth($data);
+
+        $values = $this->getOption('multiple') ? $this->explodeVals($data) :
+            (is_array($data) ? $data : array($data));
 
         if ($this->getOption('allowed') !== null) {
             $unknown = array_diff($values, $this->getOption('allowed'));
@@ -79,7 +82,10 @@ class StringType extends AbstractType
      */
     protected function explodeVals($data)
     {
-        return array_filter(array_unique(explode($this->getOption('delimiter', self::COND_DELIMITER), $data)));
+        $data = is_array($data) ? $data :
+            explode($this->getOption('delimiter', self::COND_DELIMITER), $data);
+
+        return array_filter(array_unique($data));
     }
 
     /**

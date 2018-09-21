@@ -5,7 +5,7 @@
 namespace QueryFilterSerializer\Filter\Type;
 
 
-use QueryFilterSerializer\Filter\ParsingException;
+use QueryFilterSerializer\Exception\ParsingException;
 
 class EnumType extends StringType
 {

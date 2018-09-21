@@ -5,7 +5,7 @@
 namespace QueryFilterSerializer\Filter\Type;
 
 
-use QueryFilterSerializer\Filter\ParsingException;
+use QueryFilterSerializer\Exception\ParsingException;
 
 class BooleanType extends AbstractType
 {
@@ -56,9 +56,12 @@ class BooleanType extends AbstractType
      * @param $data
      * @return array
      * @throws ParsingException
+     * @throws \QueryFilterSerializer\Exception\ArrayMaxDepthException
      */
     public function unserialize($data)
     {
+        $this->checkArrayDepth($data);
+
         if ($this->getOption(self::OPT_TRUE, self::DEFAULT_TRUE) === $data) {
             return array(array('condition' => 'eq', 'value' => true));
         } elseif ($this->getOption(self::OPT_FALSE, self::DEFAULT_FALSE) === $data) {

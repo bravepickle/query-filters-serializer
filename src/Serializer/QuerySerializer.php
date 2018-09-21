@@ -8,7 +8,7 @@ namespace QueryFilterSerializer\Serializer;
 
 use QueryFilterSerializer\Config\Options;
 use QueryFilterSerializer\Encoder\EncoderInterface;
-use QueryFilterSerializer\Encoder\QueryEncoder;
+use QueryFilterSerializer\Encoder\StringEncoder;
 use QueryFilterSerializer\Exception\FilterException;
 use QueryFilterSerializer\Exception\ParsingException;
 use QueryFilterSerializer\Filter\FieldFilter;
@@ -47,7 +47,7 @@ class QuerySerializer implements SerializerInterface
     public function __construct(Options $options = null, EncoderInterface $encoder = null)
     {
         $this->options = $options ?: new Options();
-        $this->encoder = $encoder ?: new QueryEncoder();
+        $this->encoder = $encoder ?: new StringEncoder();
         $this->registerDefaultLoaders();
     }
 
@@ -77,6 +77,10 @@ class QuerySerializer implements SerializerInterface
         $this->loaders = $loaders;
     }
 
+    /**
+     * Add new loader
+     * @param LoaderInterface $loader
+     */
     public function addLoader(LoaderInterface $loader)
     {
         $this->loaders[] = $loader;

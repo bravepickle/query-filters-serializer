@@ -7,10 +7,10 @@
 namespace QueryFilterSerializer\Config;
 
 /**
- * Class QueryEncoderOptions contains options for QueryEncoder
- * @package QueryFilterSerializer\Filter
+ * Class StringEncoderOptions contains options for StringEncoder
+ * @package QueryFilterSerializer\Config
  */
-class QueryEncoderOptions
+class StringEncoderOptions
 {
     /**
      * @var string value-name delimiter

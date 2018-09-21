@@ -51,9 +51,12 @@ class EmbeddedType extends AbstractType implements QuerySerializerAwareInterface
      * @param $data
      * @return array
      * @throws ParsingException
+     * @throws \QueryFilterSerializer\Exception\FilterException
      */
     public function unserialize($data)
     {
+        $data = is_array($data) ? current($data) : $data;
+
         $data = trim($data, self::WRAP_RIGHT . self::WRAP_LEFT); // remove wrapper
         if (!$data) {
             return array();

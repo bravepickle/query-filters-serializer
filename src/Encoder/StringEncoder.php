@@ -3,20 +3,20 @@
 namespace QueryFilterSerializer\Encoder;
 
 
-use QueryFilterSerializer\Config\QueryEncoderOptions;
+use QueryFilterSerializer\Config\StringEncoderOptions;
 use QueryFilterSerializer\Exception\ParsingException;
 use QueryFilterSerializer\Filter\Type\EmbeddedType;
 
-class QueryEncoder implements EncoderInterface
+class StringEncoder implements EncoderInterface
 {
     /**
-     * @var QueryEncoderOptions
+     * @var StringEncoderOptions
      */
     protected $options;
 
-    public function __construct(QueryEncoderOptions $options = null)
+    public function __construct(StringEncoderOptions $options = null)
     {
-        $this->options = $options ?: new QueryEncoderOptions();
+        $this->options = $options ?: new StringEncoderOptions();
     }
 
     /**

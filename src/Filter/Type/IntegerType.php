@@ -8,12 +8,13 @@
 namespace QueryFilterSerializer\Filter\Type;
 
 
-use QueryFilterSerializer\Filter\ParsingException;
 use QueryFilterSerializer\Helper\Formatter;
+use QueryFilterSerializer\Exception\ParsingException;
 
 class IntegerType extends AbstractType
 {
     const NAME = 'integer';
+    const MAX_DEPTH = 1;
 
     const OPT_ALLOW_RANGES = 'ranges';
     const OPT_ALLOW_LIMITED = 'limited'; // limit the conditionals that are allowed for the filter
@@ -41,9 +42,10 @@ class IntegerType extends AbstractType
     }
 
     /**
-     * @param $data
+     * @param array|string $data
      * @return array
      * @throws ParsingException
+     * @throws \QueryFilterSerializer\Exception\ArrayMaxDepthException
      */
     public function unserialize($data)
     {
@@ -51,7 +53,10 @@ class IntegerType extends AbstractType
             return array();
         }
 
-        $values = array_filter(array_unique(explode(self::COND_DELIMITER, $data)), function($val) {
+        $this->checkArrayDepth($data);
+
+        $rawValues = is_array($data) ? $data : explode(self::COND_DELIMITER, $data);
+        $values = array_filter(array_unique($rawValues), function($val) {
             return $val !== '';
         });
 

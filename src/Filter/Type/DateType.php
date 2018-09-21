@@ -8,7 +8,7 @@
 namespace QueryFilterSerializer\Filter\Type;
 
 
-use QueryFilterSerializer\Filter\ParsingException;
+use QueryFilterSerializer\Exception\ParsingException;
 use QueryFilterSerializer\Helper\Formatter;
 
 class DateType extends AbstractType
@@ -43,6 +43,7 @@ class DateType extends AbstractType
      * @param $data
      * @return array
      * @throws ParsingException
+     * @throws \QueryFilterSerializer\Exception\ArrayMaxDepthException
      */
     public function unserialize($data)
     {
@@ -50,7 +51,11 @@ class DateType extends AbstractType
             return array();
         }
 
-        $values = array_filter(array_unique(explode(self::COND_DELIMITER, $data)));
+        $this->checkArrayDepth($data);
+
+        $data = is_array($data) ? $data : explode(self::COND_DELIMITER, $data);
+
+        $values = array_filter(array_unique($data));
         $results = array();
 
         foreach ($values as $val) {
