@@ -4,7 +4,7 @@
  * Time: 12:37 AM
  */
 
-namespace QueryFilterSerializer\Filter;
+namespace QueryFilterSerializer\Serializer;
 
 
 interface SerializerInterface

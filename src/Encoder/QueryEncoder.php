@@ -1,11 +1,10 @@
 <?php
 
-namespace QueryFilterSerializer\Filter\Encoder;
+namespace QueryFilterSerializer\Encoder;
 
 
-use QueryFilterSerializer\Filter\Config\QueryEncoderOptions;
-use QueryFilterSerializer\Filter\EncoderInterface;
-use QueryFilterSerializer\Filter\ParsingException;
+use QueryFilterSerializer\Config\QueryEncoderOptions;
+use QueryFilterSerializer\Exception\ParsingException;
 use QueryFilterSerializer\Filter\Type\EmbeddedType;
 
 class QueryEncoder implements EncoderInterface

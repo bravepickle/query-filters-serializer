@@ -1,14 +1,17 @@
 <?php
 /**
- * User: victor
  * Date: 25.05.14
  * Time: 19:46
  */
 
-namespace QueryFilterSerializer\Filter;
+namespace QueryFilterSerializer\Serializer;
 
-use QueryFilterSerializer\Filter\Config\Options;
-use QueryFilterSerializer\Filter\Encoder\QueryEncoder;
+use QueryFilterSerializer\Config\Options;
+use QueryFilterSerializer\Encoder\EncoderInterface;
+use QueryFilterSerializer\Encoder\QueryEncoder;
+use QueryFilterSerializer\Exception\ParsingException;
+use QueryFilterSerializer\Filter\FieldFilter;
+use QueryFilterSerializer\Filter\QueryFilterTypeInterface;
 
 class QuerySerializer implements SerializerInterface
 {

@@ -4,7 +4,7 @@
  * Time: 1:10 AM
  */
 
-namespace QueryFilterSerializer\Filter\Config;
+namespace QueryFilterSerializer\Config;
 
 /**
  * Class QueryEncoderOptions contains options for QueryEncoder

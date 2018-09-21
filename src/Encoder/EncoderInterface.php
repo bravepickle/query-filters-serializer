@@ -5,7 +5,7 @@
  * Time: 14:57
  */
 
-namespace QueryFilterSerializer\Filter;
+namespace QueryFilterSerializer\Encoder;
 
 /**
  * Interface EncoderInterface encodes and decodes filters query data

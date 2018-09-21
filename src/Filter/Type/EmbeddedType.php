@@ -5,10 +5,10 @@
 namespace QueryFilterSerializer\Filter\Type;
 
 
+use QueryFilterSerializer\Exception\ParsingException;
 use QueryFilterSerializer\Filter\FieldFilter;
-use QueryFilterSerializer\Filter\ParsingException;
-use QueryFilterSerializer\Filter\QuerySerializer;
-use QueryFilterSerializer\Filter\QuerySerializerAwareInterface;
+use QueryFilterSerializer\Serializer\QuerySerializerAwareInterface;
+use QueryFilterSerializer\Serializer\QuerySerializer;
 
 class EmbeddedType extends AbstractType implements QuerySerializerAwareInterface
 {
@@ -37,7 +37,6 @@ class EmbeddedType extends AbstractType implements QuerySerializerAwareInterface
     {
         $this->serializer = $serializer;
     }
-
 
     /**
      * @param array $data

@@ -6,6 +6,8 @@
 
 namespace QueryFilterSerializer\Filter;
 
+use QueryFilterSerializer\Serializer\SerializerInterface;
+
 /**
  * Interface QueryFilterTypeInterface
  * Contains basic functionality for using
