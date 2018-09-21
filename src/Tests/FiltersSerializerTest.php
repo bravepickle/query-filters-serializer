@@ -1,9 +1,14 @@
 <?php
+
+namespace QueryFilterSerializerTest;
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use PHPUnit\Framework\TestCase;
 use QueryFilterSerializer\Serializer\QuerySerializer;
+use QueryFilterSerializer as App;
 
-class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
+class FiltersSerializerTest extends TestCase
 {
     public function providerAge()
     {
@@ -190,11 +195,11 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
                 'age:18',
                 array('return_object' => true, 'constraints' => array('age' => array('type' => 'integer'))),
                 array(
-                    'age' => new QueryFilterSerializer\Filter\FieldFilter(
+                    'age' => new App\Filter\FieldFilter(
                         array(
                             'type' => 'integer',
                             'constraints' => array(
-                                new QueryFilterSerializer\Filter\FieldConstraint(
+                                new App\Filter\FieldConstraint(
                                     array(
                                         'condition' => 'eq',
                                         'value' => array('18'),
@@ -214,7 +219,8 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
      * @param $filter
      * @param $options
      * @param $expected
-     * @throws \QueryFilterSerializer\Exception\ParsingException
+     * @throws App\Exception\ParsingException
+     * @throws App\Exception\FilterException
      */
     public function testSerializeAge($filter, $options, $expected)
     {
@@ -341,7 +347,8 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
      * @param $filter
      * @param $options
      * @param $expected
-     * @throws \QueryFilterSerializer\Exception\ParsingException
+     * @throws App\Exception\ParsingException
+     * @throws App\Exception\FilterException
      */
     public function testSerializeName($filter, $options, $expected)
     {
@@ -400,7 +407,8 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
      * @param $filter
      * @param $options
      * @param $expected
-     * @throws \QueryFilterSerializer\Exception\ParsingException
+     * @throws App\Exception\ParsingException
+     * @throws App\Exception\FilterException
      */
     public function testSerializeComposite($filter, $options, $expected)
     {
@@ -454,7 +462,8 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
      * @param $filter
      * @param $options
      * @param $expected
-     * @throws \QueryFilterSerializer\Exception\ParsingException
+     * @throws App\Exception\ParsingException
+     * @throws App\Exception\FilterException
      */
     public function testSerializeBool($filter, $options, $expected)
     {
@@ -499,7 +508,8 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
      * @param $filter
      * @param $options
      * @param $expected
-     * @throws \QueryFilterSerializer\Exception\ParsingException
+     * @throws App\Exception\ParsingException
+     * @throws App\Exception\FilterException
      */
     public function testSerializeEnum($filter, $options, $expected)
     {
@@ -806,7 +816,8 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
      * @param $filter
      * @param $options
      * @param $expected
-     * @throws \QueryFilterSerializer\Exception\ParsingException
+     * @throws App\Exception\ParsingException
+     * @throws App\Exception\FilterException
      */
     public function testSerializeSqlParts($filter, $options, $expected)
     {
@@ -968,11 +979,11 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
                 'date:2015-08-28T16:59:13Z',
                 array('return_object' => true, 'constraints' => array('date' => array('type' => 'datetime'))),
                 array(
-                    'date' => new QueryFilterSerializer\Filter\FieldFilter(
+                    'date' => new App\Filter\FieldFilter(
                         array(
                             'type' => 'datetime',
                             'constraints' => array(
-                                new QueryFilterSerializer\Filter\FieldConstraint(
+                                new App\Filter\FieldConstraint(
                                     array(
                                         'condition' => 'eq',
                                         'value' => array(date_create_from_format('Y-m-d\TH:i:sP', '2015-08-28T16:59:13Z')),
@@ -992,7 +1003,8 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
      * @param $filter
      * @param $options
      * @param $expected
-     * @throws \QueryFilterSerializer\Exception\ParsingException
+     * @throws App\Exception\ParsingException
+     * @throws App\Exception\FilterException
      */
     public function testDateTime($filter, $options, $expected)
     {
@@ -1304,7 +1316,8 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
      * @param $filter
      * @param $options
      * @param $expected
-     * @throws \QueryFilterSerializer\Exception\ParsingException
+     * @throws App\Exception\ParsingException
+     * @throws App\Exception\FilterException
      */
     public function testEmbedded($filter, $options, $expected)
     {
@@ -1317,11 +1330,11 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @param array $data
-     * @return \QueryFilterSerializer\Config\Options
+     * @return App\Config\Options
      */
     protected function genOptions(array $data)
     {
-        $options = new \QueryFilterSerializer\Config\Options();
+        $options = new App\Config\Options();
         $options->constraints = isset($data['constraints']) ? $data['constraints'] : [];
 
         if (isset($data['return_object'])) {

@@ -9,9 +9,12 @@ namespace QueryFilterSerializer\Serializer;
 use QueryFilterSerializer\Config\Options;
 use QueryFilterSerializer\Encoder\EncoderInterface;
 use QueryFilterSerializer\Encoder\QueryEncoder;
+use QueryFilterSerializer\Exception\FilterException;
 use QueryFilterSerializer\Exception\ParsingException;
 use QueryFilterSerializer\Filter\FieldFilter;
 use QueryFilterSerializer\Filter\QueryFilterTypeInterface;
+use QueryFilterSerializer\Loader\FilterTypeLoader;
+use QueryFilterSerializer\Loader\LoaderInterface;
 
 class QuerySerializer implements SerializerInterface
 {
@@ -31,6 +34,12 @@ class QuerySerializer implements SerializerInterface
     public $encoder;
 
     /**
+     * Filter type loaders
+     * @var LoaderInterface[]
+     */
+    public $loaders = [];
+
+    /**
      * QuerySerializer constructor.
      * @param Options|null $options
      * @param EncoderInterface|null $encoder
@@ -39,6 +48,38 @@ class QuerySerializer implements SerializerInterface
     {
         $this->options = $options ?: new Options();
         $this->encoder = $encoder ?: new QueryEncoder();
+        $this->registerDefaultLoaders();
+    }
+
+    /**
+     * Register default loaders
+     */
+    public function registerDefaultLoaders()
+    {
+        $this->loaders[] = new FilterTypeLoader($this->options->constraintsNamespace);
+    }
+
+    /**
+     * Get all available loaders
+     * @return LoaderInterface[]
+     */
+    public function getLoaders()
+    {
+        return $this->loaders;
+    }
+
+    /**
+     * Set loaders
+     * @param LoaderInterface[] $loaders
+     */
+    public function setLoaders($loaders)
+    {
+        $this->loaders = $loaders;
+    }
+
+    public function addLoader(LoaderInterface $loader)
+    {
+        $this->loaders[] = $loader;
     }
 
     /**
@@ -81,6 +122,7 @@ class QuerySerializer implements SerializerInterface
      * @param $query
      * @return array
      * @throws ParsingException
+     * @throws FilterException
      */
     public function unserialize($query)
     {
@@ -118,27 +160,6 @@ class QuerySerializer implements SerializerInterface
     public function serialize(array $filters)
     {
         return $this->encoder->encode($filters, $this->genContext());
-    }
-
-    /**
-     * @param $name
-     * @return QueryFilterTypeInterface
-     */
-    public function getSerializerTypeByName($name)
-    {
-        $fullClassName = $this->options->constraintsNamespace . '\\' . ucwords($name) . 'Type';
-
-        if (isset($this->filterTypes[$fullClassName])) {
-            return $this->filterTypes[$fullClassName];
-        }
-
-        $this->filterTypes[$fullClassName] = new $fullClassName();
-
-        if ($this->filterTypes[$fullClassName] instanceof QuerySerializerAwareInterface) {
-            $this->filterTypes[$fullClassName]->setSerializer($this);
-        }
-
-        return clone $this->filterTypes[$fullClassName];
     }
 
     /**
@@ -190,20 +211,21 @@ class QuerySerializer implements SerializerInterface
      * @param $modType
      * @param $value
      * @return array
+     * @throws FilterException
      */
     protected function parseFilterData($name, $modType, $value)
     {
-        $typeSerializer = $this->getSerializerTypeByName($this->options->constraints[$name][$modType]);
+        $filterType = $this->getFilterTypeByName($this->options->constraints[$name][$modType]);
 
         $modOpt = $this->options->constraintOptions;
 
         if (isset($this->options->constraints[$name][$modOpt])) {
-            $typeSerializer->setOptions($this->options->constraints[$name][$modOpt]);
+            $filterType->setOptions($this->options->constraints[$name][$modOpt]);
         }
 
-        $parsed = $typeSerializer->unserialize($value);
+        $parsed = $filterType->unserialize($value);
 
-        return array($typeSerializer, $parsed);
+        return array($filterType, $parsed);
     }
 
     /**
@@ -216,5 +238,29 @@ class QuerySerializer implements SerializerInterface
         $context[EncoderInterface::CONTEXT_ENCODING] = $this->options->encoding;
 
         return $context;
+    }
+
+    /**
+     * @param $name
+     * @return null|QueryFilterTypeInterface|object
+     * @throws FilterException
+     */
+    protected function getFilterTypeByName($name)
+    {
+        /** @var LoaderInterface $loader */
+        foreach ($this->loaders as $loader) {
+            if ($loader->supports($name)) {
+                $object = $loader->load($name);
+
+                // dependency injection
+                if ($object instanceof QuerySerializerAwareInterface) {
+                    $object->setSerializer($this);
+                }
+
+                return $object;
+            }
+        }
+
+        throw new FilterException('Failed to find filter: ' . $name);
     }
 }

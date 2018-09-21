@@ -7,7 +7,7 @@
 namespace QueryFilterSerializer\Exception;
 
 
-class ParsingException extends \Exception
+class ParsingException extends AbstractException
 {
 
 } 

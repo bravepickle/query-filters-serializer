@@ -25,6 +25,11 @@
             "QueryFilterSerializer\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "QueryFilterSerializerTest\\": "src/Tests"
+        }
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "2.0.x-dev"
