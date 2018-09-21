@@ -92,6 +92,7 @@ To learn more on its usage, please refer to the provided [tests]
  - Use more objects and less arrays. E.g. serializer options, return
  - Use register method or DI for types add to serializer
  - Use interfaces in definitions instead of classes, when possible
+ - Add loader interface and its implementation for filter types
 
 License
 ----

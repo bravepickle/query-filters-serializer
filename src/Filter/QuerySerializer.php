@@ -7,7 +7,8 @@
 
 namespace QueryFilterSerializer\Filter;
 
-use QueryFilterSerializer\Filter\Type\EmbeddedType;
+use QueryFilterSerializer\Filter\Config\Options;
+use QueryFilterSerializer\Filter\Encoder\QueryEncoder;
 
 class QuerySerializer implements SerializerInterface
 {
@@ -22,12 +23,35 @@ class QuerySerializer implements SerializerInterface
     protected $filterTypes = array();
 
     /**
+     * @var EncoderInterface
+     */
+    public $encoder;
+
+    /**
      * QuerySerializer constructor.
      * @param Options|null $options
+     * @param EncoderInterface|null $encoder
      */
-    public function __construct(Options $options = null)
+    public function __construct(Options $options = null, EncoderInterface $encoder = null)
     {
-        $this->options = $options !== null ? $options : new Options();
+        $this->options = $options ?: new Options();
+        $this->encoder = $encoder ?: new QueryEncoder();
+    }
+
+    /**
+     * @return EncoderInterface
+     */
+    public function getEncoder()
+    {
+        return $this->encoder;
+    }
+
+    /**
+     * @param EncoderInterface $encoder
+     */
+    public function setEncoder($encoder)
+    {
+        $this->encoder = $encoder;
     }
 
     /**
@@ -61,12 +85,11 @@ class QuerySerializer implements SerializerInterface
             return array(); // no query parameters
         }
 
-        $constraints = array_unique(array_filter($this->explodeConstraints($query)));
+        $filterTypes = $this->encoder->decode($query, $this->genContext());
 
         $pairs = array();
 
-        foreach ($constraints as $constraint) {
-            $sub = $this->splitKeyValue($constraint);
+        foreach ($filterTypes as $sub) {
             list($name, $value) = $sub;
 
             $modType = $this->options->constraintType;
@@ -91,7 +114,7 @@ class QuerySerializer implements SerializerInterface
 
     public function serialize(array $filters)
     {
-        // TODO:
+        return $this->encoder->encode($filters, $this->genContext());
     }
 
     /**
@@ -181,125 +204,14 @@ class QuerySerializer implements SerializerInterface
     }
 
     /**
-     * @param $value
-     * @return array
-     * @throws ParsingException
-     */
-    protected function splitKeyValue($value)
-    {
-        if (!$this->canSplitKeyValue($value)) {
-            throw new ParsingException('Filter constraint is not defined correctly');
-        }
-
-        $strPos = mb_strpos(
-            $value,
-            $this->options->nameValueDelimiter,
-            null,
-            $this->options->encoding
-        );
-        $strLen = mb_strlen($this->options->nameValueDelimiter, $this->options->encoding);
-
-        return array(
-            mb_substr($value, 0, $strPos, $this->options->encoding),
-            mb_substr($value, $strPos + $strLen, null, $this->options->encoding),
-        );
-    }
-
-    protected function canSplitKeyValue($value)
-    {
-        return mb_strpos(
-            $value,
-            $this->options->nameValueDelimiter,
-            null,
-            $this->options->encoding
-        ) !== false;
-    }
-
-    /**
-     * @param $query
      * @return array
      */
-    protected function explodeConstraints($query)
+    protected function genContext()
     {
-        $placeholder = '%!$_TMP_$!%';
-        $placeholderEsc = '%_$_TMP_$_%';
-        $placeholderEmbed = '%_$_EMB_$_%';
-        $delim = $this->options->constraintDelimiter;
+        $context = array();
+        $context[EncoderInterface::CONTEXT_CONSTRAINTS] = $this->options->constraints;
+        $context[EncoderInterface::CONTEXT_ENCODING] = $this->options->encoding;
 
-        $esc = $this->options->escapeStr;
-        $tpl = str_replace(array($esc . $esc, $esc . $delim), array($placeholderEsc, $placeholder), $query);
-
-        $this->setPlaceholdersForEmbedded($delim, $tpl, $placeholderEmbed, $this->options->constraints, $replaces);
-
-        $vals = explode($delim, $tpl);
-
-        // revert placeholders to values
-        foreach ($vals as &$v) {
-            if ($replaces) {
-                foreach ($replaces as $search => &$replace) {
-                    $v = str_replace($search, $replace, $v);
-                }
-            }
-
-            $v = str_replace(array($placeholderEsc, $placeholder, $placeholderEmbed), array($esc . $esc, $delim, $delim), $v);
-        }
-
-        return $vals;
+        return $context;
     }
-
-    /**
-     * @param $delim
-     * @param $tpl
-     * @param $placeholderEmbed
-     * @param $constraints
-     * @param $replaces
-     * @return null|array
-     */
-    protected function setPlaceholdersForEmbedded($delim, &$tpl, $placeholderEmbed, $constraints, &$replaces = null)
-    {
-        $fieldTypes = array_column($constraints, 'type');
-        if (in_array(EmbeddedType::NAME, $fieldTypes)) { // do we have embedded queries?
-            // TODO: dive in deeper... recursion
-
-            // after recursion...
-
-            $quotedDelim = preg_quote($delim, '~');
-            foreach ($constraints as $field => &$options) {
-                // is embedded
-                if (isset($options['type']) && $options['type'] == EmbeddedType::NAME) {
-                    // TODO: embedded recursion...
-                    // children have also embedded fields
-//                    if (isset($options['options'][EmbeddedSerializer::OPT_CONSTRAINTS])) {
-//                        $subMatches = $this->setPlaceholdersForEmbedded($delim, $tpl, $placeholderEmbed, $options['options'][EmbeddedSerializer::OPT_CONSTRAINTS], $replaces);
-//                        $this->addReplaces($replaces, $subMatches);
-//                    }
-
-                    $quotedName = preg_quote($field, '~');
-                    $wrapLeft = preg_quote(EmbeddedType::WRAP_LEFT, '~');
-                    $wrapRight = preg_quote(EmbeddedType::WRAP_RIGHT, '~');
-                    $pattern = "~($quotedName:$wrapLeft)" .
-                        "([^$wrapRight]*{$quotedDelim}[^$wrapRight]*)" .
-                        "($wrapRight(?:$quotedDelim|$))~iU";
-                    if (preg_match_all($pattern, $tpl, $matches)) {
-                        foreach ($matches[2] as $key => &$subquery) {
-                            $templated = str_replace($delim, $placeholderEmbed, $subquery);
-                            $tpl = str_replace($matches[0][$key], $matches[1][$key] . $templated . $matches[3][$key], $tpl);
-                        }
-
-                        return $matches;
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
-//    protected function addReplaces(&$replaces, $matches)
-//    {
-//      TODO: add replaces of query name:(embedded_params) to name:(_TMP_1_)
-//        print_r($matches);
-//        print_r($replaces);
-//        die("\n" . __METHOD__ . ':' . __LINE__ . "\n");
-//    }
 }

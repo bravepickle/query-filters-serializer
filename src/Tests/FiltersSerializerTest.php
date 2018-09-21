@@ -1317,11 +1317,11 @@ class FiltersSerializerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @param array $data
-     * @return \QueryFilterSerializer\Filter\Options
+     * @return \QueryFilterSerializer\Filter\Config\Options
      */
     protected function genOptions(array $data)
     {
-        $options = new \QueryFilterSerializer\Filter\Options();
+        $options = new \QueryFilterSerializer\Filter\Config\Options();
         $options->constraints = isset($data['constraints']) ? $data['constraints'] : [];
 
         if (isset($data['return_object'])) {
