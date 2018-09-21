@@ -55,43 +55,39 @@ class StringEmbeddedTypeEncoder implements EncoderInterface
             throw new FilterException('Undefined serializer in context for filter: ' . EmbeddedType::NAME);
         }
 
-//        /** @var QuerySerializer $serializer */
-//        $serializer = $context[EncoderInterface::CONTEXT_SERIALIZER];
-        $encoding = $context[EncoderInterface::CONTEXT_ENCODING];
+        /** @var QuerySerializer $serializer */
+        $serializer = $context[EncoderInterface::CONTEXT_SERIALIZER];
+        /** @var EmbeddedType $embedType */
+        $embedType = $context[EncoderInterface::CONTEXT_FILTER_TYPE];
+        $encoding = $serializer->getOptions()->encoding;
 
         $len = mb_strlen($data, $encoding);
         $lastIndex = $len - 1;
-        if ($data{1} !== $this->options->wrapLeft || $data{$lastIndex} !== $this->options->wrapRight) {
+        if ($data{0} !== $this->options->wrapLeft || $data{$lastIndex} !== $this->options->wrapRight) {
             throw new ParsingException('Failed to parse filter value.');
         }
 
-        $data = mb_substr($data, 1, $len - 1);
-
-        var_export($data);
-        die("\n" . __METHOD__ . ":" . __FILE__ . ":" . __LINE__ . "\n");
-
+        $data = mb_substr($data, 1, $len - 2);
         if (!$data) {
             return array();
         }
 
         // backup
-        $serializerConstraints = $this->serializer->getOptions()->constraints;
-        $tableName = $this->serializer->getOptions()->tableName;
+        $serializerConstraints = $serializer->getOptions()->constraints;
+        $tableName = $serializer->getOptions()->tableName;
 
         // unserialize embedded
-        $this->serializer->getOptions()->tableName =
-            $this->getOption(self::OPT_TABLE_NAME, self::DEFAULT_TABLE_NAME);
-        $this->serializer->getOptions()->constraints = $this->getOption(self::OPT_CONSTRAINTS, []);
+        $serializer->getOptions()->tableName =
+            $embedType->getOption(EmbeddedType::OPT_TABLE_NAME, EmbeddedType::DEFAULT_TABLE_NAME);
+        $serializer->getOptions()->constraints = $embedType->getOption(EmbeddedType::OPT_CONSTRAINTS, []);
 
-        $unserialized = $this->serializer->unserialize($data); // pass embedded constraints
+        $unserialized = $serializer->unserialize($data); // pass embedded constraints
 
         // revert
-        $this->serializer->getOptions()->constraints = $serializerConstraints;
-        $this->serializer->getOptions()->tableName = $tableName;
+        $serializer->getOptions()->constraints = $serializerConstraints;
+        $serializer->getOptions()->tableName = $tableName;
 
         return $unserialized;
-
-        return $data;
     }
 
     public function encode($data, $context = [])

@@ -16,6 +16,7 @@ interface EncoderInterface
     const CONTEXT_CONSTRAINTS = 'constraints';
     const CONTEXT_ENCODING = 'encoding';
     const CONTEXT_SERIALIZER = 'serializer';
+    const CONTEXT_FILTER_TYPE = 'filter_type';
 
     /**
      * @param mixed $data

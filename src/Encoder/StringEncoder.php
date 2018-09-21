@@ -148,8 +148,8 @@ class StringEncoder implements EncoderInterface
 //                    }
 
                     $quotedName = preg_quote($field, '~');
-                    $wrapLeft = preg_quote(EmbeddedType::WRAP_LEFT, '~');
-                    $wrapRight = preg_quote(EmbeddedType::WRAP_RIGHT, '~');
+                    $wrapLeft = preg_quote($this->options->wrapLeft, '~');
+                    $wrapRight = preg_quote($this->options->wrapRight, '~');
                     $pattern = "~($quotedName:$wrapLeft)" .
                         "([^$wrapRight]*{$quotedDelim}[^$wrapRight]*)" .
                         "($wrapRight(?:$quotedDelim|$))~iU";

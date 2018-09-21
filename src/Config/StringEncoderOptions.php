@@ -27,4 +27,7 @@ class StringEncoderOptions
      * @var string
      */
     public $escapeStr = '\\';
+
+    public $wrapRight = ')';
+    public $wrapLeft = '(';
 }

@@ -114,7 +114,7 @@ class EmbeddedType extends AbstractType implements QuerySerializerAwareInterface
 //        $this->checkArrayDepth($data);
         $this->initEncoder();
 
-        $data = $this->encoder->decode($data);
+        $data = $this->encoder->decode($data, $this->prepareContext());
         if (!$data) {
             return array();
         }
@@ -158,6 +158,18 @@ class EmbeddedType extends AbstractType implements QuerySerializerAwareInterface
         }
 
         return $output;
+    }
+
+    /**
+     * @return array
+     */
+    protected function prepareContext(): array
+    {
+        $context = [];
+        $context[EncoderInterface::CONTEXT_SERIALIZER] = $this->serializer;
+        $context[EncoderInterface::CONTEXT_FILTER_TYPE] = $this;
+
+        return $context;
     }
 
 
