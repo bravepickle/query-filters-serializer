@@ -5,30 +5,79 @@
 namespace QueryFilterSerializer\Filter\Type;
 
 
+use QueryFilterSerializer\Encoder\EncoderAwareInterface;
+use QueryFilterSerializer\Encoder\EncoderInterface;
+use QueryFilterSerializer\Encoder\Filter\StringEmbeddedTypeEncoder;
 use QueryFilterSerializer\Exception\ParsingException;
 use QueryFilterSerializer\Filter\FieldFilter;
 use QueryFilterSerializer\Serializer\QuerySerializerAwareInterface;
 use QueryFilterSerializer\Serializer\QuerySerializer;
 
-class EmbeddedType extends AbstractType implements QuerySerializerAwareInterface
+class EmbeddedType extends AbstractType implements QuerySerializerAwareInterface, EncoderAwareInterface
 {
     const NAME = 'embedded';
+    const MAX_DEPTH = 1;
+    const DEFAULT_TABLE_NAME = 't2';
+
+    const OPT_ENCODER = 'encoder';
+    const OPT_TABLE_NAME = 'table_name';
+    const OPT_CONSTRAINTS = 'constraints';
+
+    public $tableName = self::DEFAULT_TABLE_NAME;
+    public $constraints = [];
 
     protected $options = array(
-        self::OPT_CONSTRAINTS => [],
+        // can be either string with encoder class name or EncoderInterface class instance
+        self::OPT_ENCODER => StringEmbeddedTypeEncoder::class,
+        // table name for embedded types
         self::OPT_TABLE_NAME => self::DEFAULT_TABLE_NAME,
+        // embedded constraints
+        self::OPT_CONSTRAINTS => [],
     );
-
-    const OPT_CONSTRAINTS = 'constraints'; // contains options for embedded object fields, e.g. for embedded user will be username, email etc.
-    const WRAP_RIGHT = ')';
-    const WRAP_LEFT = '(';
-    const OPT_TABLE_NAME = 'table_name';
-    const DEFAULT_TABLE_NAME = 't2';
 
     /**
      * @var QuerySerializer
      */
     protected $serializer;
+
+    /**
+     * @var EncoderInterface
+     */
+    protected $encoder;
+
+    /**
+     * EmbeddedType constructor.
+     * @param EncoderInterface $encoder
+     */
+    public function __construct(EncoderInterface $encoder = null)
+    {
+        $this->encoder = $encoder;
+    }
+
+    /**
+     * @return EncoderInterface
+     */
+    public function getEncoder()
+    {
+        return $this->encoder;
+    }
+
+    /**
+     * @param EncoderInterface|null $encoder
+     */
+    public function setEncoder(EncoderInterface $encoder = null)
+    {
+        $this->encoder = $encoder;
+    }
+
+    protected function initEncoder()
+    {
+        if (!$this->encoder) {
+            $optEncoder = $this->getOption(self::OPT_ENCODER);
+            $this->encoder = $optEncoder instanceof EncoderInterface ?
+                $optEncoder : new $optEncoder();
+        }
+    }
 
     /**
      * @param QuerySerializer $serializer
@@ -47,17 +96,25 @@ class EmbeddedType extends AbstractType implements QuerySerializerAwareInterface
         throw new ParsingException('TODO: Implement ' . __METHOD__);
     }
 
+//    protected function checkArrayDepth($data)
+//    {
+//        // TODO: calculate based on configs embedding level
+//        $this->assertArrayMaxDepth($data, static::MAX_DEPTH);
+//    }
+
     /**
      * @param $data
      * @return array
      * @throws ParsingException
      * @throws \QueryFilterSerializer\Exception\FilterException
+     * @throws \QueryFilterSerializer\Exception\ArrayMaxDepthException
      */
     public function unserialize($data)
     {
-        $data = is_array($data) ? current($data) : $data;
+//        $this->checkArrayDepth($data);
+        $this->initEncoder();
 
-        $data = trim($data, self::WRAP_RIGHT . self::WRAP_LEFT); // remove wrapper
+        $data = $this->encoder->decode($data);
         if (!$data) {
             return array();
         }
@@ -67,8 +124,7 @@ class EmbeddedType extends AbstractType implements QuerySerializerAwareInterface
         $tableName = $this->serializer->getOptions()->tableName;
 
         // unserialize embedded
-        $this->serializer->getOptions()->tableName =
-            $this->getOption(self::OPT_TABLE_NAME, self::DEFAULT_TABLE_NAME);
+        $this->serializer->getOptions()->tableName = $this->getOption(self::OPT_TABLE_NAME, self::DEFAULT_TABLE_NAME);
         $this->serializer->getOptions()->constraints = $this->getOption(self::OPT_CONSTRAINTS, []);
 
         $unserialized = $this->serializer->unserialize($data); // pass embedded constraints

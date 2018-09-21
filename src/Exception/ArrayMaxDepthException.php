@@ -10,7 +10,7 @@ namespace QueryFilterSerializer\Exception;
  * Class ArrayMaxDepthException
  * @package QueryFilterSerializer\Exception
  */
-class ArrayMaxDepthException extends AbstractException
+class ArrayMaxDepthException extends ParsingException
 {
     protected $message = 'Array max depth exceeded';
 }

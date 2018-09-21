@@ -80,6 +80,38 @@ class UrlQueryEncoderTest extends TestCase
         );
     }
 
+    public function providerCustom()
+    {
+        return array(
+            array(
+                ['calls' => 23, 'search' => 'base'],
+                array('constraints' => array('calls' => array('type' => 'integer'), 'search' => ['type' => 'string'])),
+                array(
+                    'calls' => array(
+                        'type' => 'integer',
+                        'constraints' => array(
+                            array(
+                                'condition' => 'eq',
+                                'value' => array(23),
+                            )
+                        ),
+                        'field' => 'calls',
+                    ),
+                    'search' => array(
+                        'type' => 'string',
+                        'constraints' => array(
+                            array(
+                                'condition' => 'eq',
+                                'value' => array('base'),
+                            )
+                        ),
+                        'field' => 'search',
+                    )
+                )
+            ),
+        );
+    }
+
     public function providerName()
     {
         return array(
@@ -264,9 +296,323 @@ class UrlQueryEncoderTest extends TestCase
         );
     }
 
+
+    public function providerEmbedded()
+    {
+        return array(
+            array(
+                '_[user][id]=12',
+                array(
+                    'constraints' => array(
+                        'user' => array(
+                            'type' => 'embedded', 'options' => array(
+                                'constraints' => array(
+                                    'id' => array(
+                                        'type' => 'integer'
+                                    ),
+                                ),
+                            ),
+                        )
+                    ),
+                    'build_sql' => true,
+                ),
+                array(
+                    'user' => array(
+                        'type' => 'embedded',
+                        'constraints' => array(
+                            'id' => array(
+                                'type' => 'integer',
+                                'constraints' => array(
+                                    array(
+                                        'condition' => 'eq',
+                                        'value' => array('12'),
+                                    )
+                                ),
+                                'field' => 'id',
+                                'sql_parts' => array(
+                                    array(
+                                        'sql' => 't2.id = :t2_id',
+                                        'parameter' => array('t2_id' => '12')
+                                    ),
+                                ),
+                            )
+                        ),
+                        'field' => 'user',
+                        'sql_parts' => array(
+                            array(
+                                'sql' => 't2.id = :t2_id',
+                                'parameter' => array('t2_id' => '12')
+                            ),
+                        ),
+                    )
+                )
+            ),
+            array(
+                '_[user][name]=John&_[user][status]=active',
+                array(
+                    'constraints' => array(
+                        'user' => array(
+                            'type' => 'embedded', 'options' => array(
+                                'constraints' => array(
+                                    'name' => array(
+                                        'type' => 'string'
+                                    ),
+                                    'status' => array(
+                                        'type' => 'string'
+                                    ),
+                                ),
+                            )
+                        )
+                    )
+                ),
+                array(
+                    'user' => array(
+                        'type' => 'embedded',
+                        'constraints' => array(
+                            'name' => array(
+                                'type' => 'string',
+                                'constraints' => array(
+                                    array(
+                                        'condition' => 'eq',
+                                        'value' => array('John'),
+                                    )
+                                ),
+                                'field' => 'name',
+                            ),
+                            'status' => array(
+                                'type' => 'string',
+                                'constraints' => array(
+                                    array(
+                                        'condition' => 'eq',
+                                        'value' => array('active'),
+                                    )
+                                ),
+                                'field' => 'status',
+                            ),
+                        ),
+                        'field' => 'user',
+                    )
+                )
+            ),
+            array(
+                '_[user][id]=12&_[user][name]=John',
+                array(
+                    'constraints' => array(
+                        'user' => array(
+                            'type' => 'embedded', 'options' => array(
+                                'constraints' => array(
+                                    'id' => array(
+                                        'type' => 'integer'
+                                    ),
+                                    'name' => array(
+                                        'type' => 'string'
+                                    ),
+                                ),
+                            )
+                        )
+                    )
+                ),
+                array(
+                    'user' => array(
+                        'type' => 'embedded',
+                        'constraints' => array(
+                            'id' => array(
+                                'type' => 'integer',
+                                'constraints' => array(
+                                    array(
+                                        'condition' => 'eq',
+                                        'value' => array('12'),
+                                    )
+                                ),
+                                'field' => 'id',
+                            ),
+                            'name' => array(
+                                'type' => 'string',
+                                'constraints' => array(
+                                    array(
+                                        'condition' => 'eq',
+                                        'value' => array('John'),
+                                    )
+                                ),
+                                'field' => 'name',
+                            )
+                        ),
+                        'field' => 'user',
+                    )
+                )
+            ),
+            array(
+                '_[id]=10&_[user][id]=12&&_[user][name]=John&_[name]=Project',
+                array(
+                    'constraints' => array(
+                        'user' => array(
+                            'type' => 'embedded', 'options' => array(
+                                'constraints' => array(
+                                    'id' => array(
+                                        'type' => 'integer'
+                                    ),
+                                    'name' => array(
+                                        'type' => 'string'
+                                    ),
+                                ),
+                                'table_name' => 'usr',
+                            )
+                        ),
+                        'id' => array('type' => 'integer'),
+                        'name' => array('type' => 'string'),
+                    ),
+                    'build_sql' => true,
+                ),
+                array(
+                    'user' => array(
+                        'type' => 'embedded',
+                        'constraints' => array(
+                            'id' => array(
+                                'type' => 'integer',
+                                'constraints' => array(
+                                    array(
+                                        'condition' => 'eq',
+                                        'value' => array('12'),
+                                    )
+                                ),
+                                'field' => 'id',
+                                'sql_parts' => array(
+                                    array(
+                                        'sql' => 'usr.id = :usr_id',
+                                        'parameter' => array('usr_id' => '12')
+                                    ),
+                                ),
+                            ),
+                            'name' => array(
+                                'type' => 'string',
+                                'constraints' => array(
+                                    array(
+                                        'condition' => 'eq',
+                                        'value' => array('John'),
+                                    )
+                                ),
+                                'field' => 'name',
+                                'sql_parts' => array(
+                                    array(
+                                        'sql' => 'usr.name = :usr_name',
+                                        'parameter' => array('usr_name' => 'John')
+                                    ),
+                                ),
+                            )
+                        ),
+                        'field' => 'user',
+                        'sql_parts' => array(
+                            array(
+                                'sql' => 'usr.id = :usr_id',
+                                'parameter' => array('usr_id' => '12')
+                            ),
+                            array(
+                                'sql' => 'usr.name = :usr_name',
+                                'parameter' => array('usr_name' => 'John')
+                            ),
+                        ),
+                    ),
+                    'name' => array(
+                        'type' => 'string',
+                        'constraints' => array(
+                            array(
+                                'condition' => 'eq',
+                                'value' => array('Project'),
+                            )
+                        ),
+                        'field' => 'name',
+                        'sql_parts' => array(
+                            array(
+                                'sql' => 't.name = :t_name',
+                                'parameter' => array('t_name' => 'Project'),
+                            )
+                        ),
+                    ),
+                    'id' => array(
+                        'type' => 'integer',
+                        'constraints' => array(
+                            array(
+                                'condition' => 'eq',
+                                'value' => array('10'),
+                            )
+                        ),
+                        'field' => 'id',
+                        'sql_parts' => array(
+                            array(
+                                'sql' => 't.id = :t_id',
+                                'parameter' => array('t_id' => '10'),
+                            )
+                        ),
+                    ),
+                )
+            ),
+            array(
+                '_[user][id]=12&_[user][role][name]=Admin',
+                array(
+                    'constraints' => array(
+                        'user' => array(
+                            'type' => 'embedded',
+                            'options' => array(
+                                'constraints' => array(
+                                    'id' => array(
+                                        'type' => 'integer'
+                                    ),
+                                    'role' => array(
+                                        'type' => 'embedded',
+                                        'options' => array(
+                                            'constraints' => array(
+                                                'name' => array('type' => 'string'),
+                                            )
+                                        )
+                                    ),
+                                ),
+                            )
+                        )
+                    )
+                ),
+                array(
+                    'user' => array(
+                        'constraints' => array(
+                            'id' => array(
+                                'constraints' => array(
+                                    array(
+                                        'condition' => 'eq',
+                                        'value' => array(12),
+                                    ),
+                                ),
+                                'type' => 'integer',
+                                'field' => 'id',
+                            ),
+                            'role' => array(
+                                    'constraints' => array(
+                                        'name' => array(
+                                            'constraints' => array(
+                                                array(
+                                                    'condition' => 'eq',
+                                                    'value' => array('Admin'),
+                                                ),
+                                            ),
+                                            'type' => 'string',
+                                            'field' => 'name',
+                                        ),
+                                    ),
+                                    'type' => 'embedded',
+                                    'field' => 'role',
+                                ),
+                            ),
+                        'type' => 'embedded',
+                        'field' => 'user',
+                    ),
+                )
+            ),
+        );
+    }
+
     /**
      * @dataProvider providerAge
      * @dataProvider providerName
+     * @dataProvider providerEmbedded
+     * @dataProvider providerCustom
      * @param $filter
      * @param $options
      * @param $expected
@@ -286,7 +632,7 @@ class UrlQueryEncoderTest extends TestCase
      * @throws App\Exception\ParsingException
      * @throws App\Exception\FilterException
      */
-    public function testSerializerArray($filter, $options, $expected)
+    public function testSerializerArrayMaxDepth($filter, $options, $expected)
     {
         $this->expectException($expected);
 
@@ -320,11 +666,11 @@ class UrlQueryEncoderTest extends TestCase
      * @throws App\Exception\FilterException
      * @throws App\Exception\ParsingException
      */
-    protected function runSerializer($filter, $options, $expected): void
+    protected function runSerializer($filter, $options, $expected)
     {
-        $serialization = $this->unserialize($filter, $options);
+        $actual = $this->unserialize($filter, $options);
 
-        $this->assertEquals($expected, $serialization);
+        $this->assertEquals($expected, $actual);
     }
 
     /**
@@ -334,12 +680,16 @@ class UrlQueryEncoderTest extends TestCase
      * @throws App\Exception\FilterException
      * @throws App\Exception\ParsingException
      */
-    protected function unserialize($filter, $options): array
+    protected function unserialize($filter, $options)
     {
         $encoder = new App\Encoder\UrlQueryEncoder();
-        $serializer = new QuerySerializer($this->genOptions($options), $encoder);
+        $options = $this->genOptions($options);
+        $options->filterTypeEncoders[App\Filter\Type\EmbeddedType::NAME] =
+            App\Encoder\Filter\ArrayEmbeddedTypeEncoder::class;
+        $serializer = new QuerySerializer($options, $encoder);
         $serialization = $serializer->unserialize($filter);
 
         return $serialization;
     }
+
 }

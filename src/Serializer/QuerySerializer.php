@@ -7,6 +7,7 @@
 namespace QueryFilterSerializer\Serializer;
 
 use QueryFilterSerializer\Config\Options;
+use QueryFilterSerializer\Encoder\EncoderAwareInterface;
 use QueryFilterSerializer\Encoder\EncoderInterface;
 use QueryFilterSerializer\Encoder\StringEncoder;
 use QueryFilterSerializer\Exception\FilterException;
@@ -259,6 +260,12 @@ class QuerySerializer implements SerializerInterface
                 // dependency injection
                 if ($object instanceof QuerySerializerAwareInterface) {
                     $object->setSerializer($this);
+                }
+
+                if ($object instanceof EncoderAwareInterface &&
+                    isset($this->options->filterTypeEncoders[$name])) {
+                    $encoder = $this->options->filterTypeEncoders[$name];
+                    $object->setEncoder(is_string($encoder) ? new $encoder() : $encoder);
                 }
 
                 return $object;

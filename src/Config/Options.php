@@ -56,6 +56,14 @@ class Options
     public $encoding = 'UTF-8';
 
     /**
+     * List of specific encoders for filter types to inject dependencies to
+     * Format: filter_type_name => encoder
+     * Filter types must implement EncoderAwareInterface
+     * @var array
+     */
+    public $filterTypeEncoders = [];
+
+    /**
      * Options constructor.
      */
     public function __construct()

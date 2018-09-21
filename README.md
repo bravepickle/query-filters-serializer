@@ -95,6 +95,8 @@ To learn more on its usage, please refer to the provided [tests]
  - Add loader interface and its implementation for filter types
  - Update docs
  - Implement Embedded type for UrlQueryEncoder
+ - Use objects to populate resulting filter data
+ - Implement serialization from array to string
 
 License
 ----
