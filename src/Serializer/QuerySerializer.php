@@ -135,11 +135,11 @@ class QuerySerializer implements SerializerInterface
             return array(); // no query parameters
         }
 
-        $filterTypes = $this->encoder->decode($query, $this->genContext());
+        $nameValuePairs = $this->encoder->decode($query, $this->genContext());
 
         $pairs = array();
 
-        foreach ($filterTypes as $sub) {
+        foreach ($nameValuePairs as $sub) {
             list($name, $value) = $sub;
 
             $modType = $this->options->constraintType;

@@ -22,7 +22,7 @@ class StringEncoder implements EncoderInterface
     /**
      * @param mixed $data
      * @param array $context
-     * @return array
+     * @return array Format: [filterName => [key, value], ...]
      * @throws ParsingException
      */
     public function decode($data, $context = [])
@@ -30,8 +30,7 @@ class StringEncoder implements EncoderInterface
         $context[EncoderInterface::CONTEXT_CONSTRAINTS] = empty($context[EncoderInterface::CONTEXT_CONSTRAINTS]) ? [] :
             $context[EncoderInterface::CONTEXT_CONSTRAINTS];
         $context[EncoderInterface::CONTEXT_ENCODING] = empty($context[EncoderInterface::CONTEXT_ENCODING]) ?
-            null :
-            $context[EncoderInterface::CONTEXT_ENCODING];
+            null : $context[EncoderInterface::CONTEXT_ENCODING];
 
         return $this->explodeConstraints($data, $context);
     }
