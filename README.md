@@ -58,8 +58,8 @@ $serializer->setOptions($options);
 $filters = $serializer->unserialize($filterString);
 
 var_export($filters);
-/**
-Will return:
+
+// Output:
 array (
   'age' => array (
     'constraints' => array (
@@ -75,8 +75,7 @@ array (
     'type' => 'integer',
     'field' => 'age',
   ),
-)
-*/
+);
 
 ```
 
@@ -117,8 +116,8 @@ $serializer = new QuerySerializer($options, $encoder);
 $filters = $serializer->unserialize($filterQuery);
 
 var_export($filters);
-/**
-Will return:
+
+// Output:
 array (
   'age' => array (
     'constraints' => array (
@@ -134,8 +133,7 @@ array (
     'type' => 'integer',
     'field' => 'age',
   ),
-)
-*/
+);
 
 ```
 
