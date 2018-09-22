@@ -1,7 +1,11 @@
 # README
+Serializer of query filters from arrays or strings. Provides constraints and parsing logic for preconfigured filters
+
+## Description
 This is a PHP library that provides serialization/deserialization of abstract filters using query string, compatible with URL format. The main purpose of this library is to help developers to make more or less standard filters within URIs and convert it to neatly formed structure for further usage. Also it can provide (optionally) SQL builder that helps to append those filters to SQL queries. It is more less SQL implementation independent and can be used in various DBs: Doctrine, MySQL, SphinxQL etc. 
 
 Filters can be easily configured using configs per each field
+
 
 ## Contents
 1. [Installation](#installation)

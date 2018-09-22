@@ -1,6 +1,6 @@
 {
     "name": "bravepickle/query-filters-serializer",
-    "description": "Serializer of query filters for future use in DB",
+    "description": "Serializer of query filters from arrays or strings. Provides constraints and parsing logic for preconfigured filters",
     "keywords": [
         "php",
         "api",
