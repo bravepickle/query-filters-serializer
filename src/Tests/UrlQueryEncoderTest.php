@@ -692,4 +692,42 @@ class UrlQueryEncoderTest extends TestCase
         return $serialization;
     }
 
+    /**
+     * @throws App\Exception\FilterException
+     * @throws App\Exception\ParsingException
+     */
+    public function testExample()
+    {
+        $options = new App\Config\Options();
+        $options->constraints = array('age' => array('type' => 'integer'));
+        $filterQuery = '_[age][]=>=14&_[age][]=<18'; // string to parse
+        $filterQueryAlt = ["age" => [">=14", "<18"]];  // this is an alternative way to specify filters. Array used instead
+
+        $encoder = new App\Encoder\UrlQueryEncoder();
+        $options->filterTypeEncoders[App\Filter\Type\EmbeddedType::NAME] =
+            App\Encoder\Filter\ArrayEmbeddedTypeEncoder::class;
+        $serializer = new QuerySerializer($options, $encoder);
+        $filters = $serializer->unserialize($filterQuery);
+        $filtersAlt = $serializer->unserialize($filterQueryAlt);
+
+        $expected = array (
+            'age' => array (
+                'constraints' => array (
+                    array (
+                        'condition' => 'gte',
+                        'value' => '14',
+                    ),
+                    array (
+                        'condition' => 'lt',
+                        'value' => '18',
+                    ),
+                ),
+                'type' => 'integer',
+                'field' => 'age',
+            ),
+        );
+
+        $this->assertEquals($expected, $filters);
+        $this->assertEquals($expected, $filtersAlt);
+    }
 }

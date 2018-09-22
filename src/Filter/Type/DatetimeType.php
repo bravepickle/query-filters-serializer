@@ -16,9 +16,11 @@ class DatetimeType extends AbstractType
     const NAME = 'datetime';
 
     const OPT_ALLOW_RANGES = 'ranges';
-    const COND_DELIMITER = ','; // delimiter that is used to split multiple values in encoded string
+    const OPT_OPTIMIZE = 'optimize';
+    const OPT_DATE_FORMAT = 'date_format';
 
     const COND_EQUALS = 'eq'; // for portability we use textual representation
+    const COND_DELIMITER = ','; // delimiter that is used to split multiple values in encoded string
     const COND_NOT_EQUALS = 'neq';
     const COND_LESS_THAN_OR_EQUALS = 'lte';
     const COND_GREATER_THAN_OR_EQUALS = 'gte';
@@ -26,9 +28,9 @@ class DatetimeType extends AbstractType
     const COND_GREATER_THAN = 'gt';
 
     protected $options = array(
-        'ranges' => true,       // do we allow to set ranges: >, >=, = etc.
-        'optimize' => true,
-        'date_format' => 'Y-m-d\TH:i:sP',
+        self::OPT_ALLOW_RANGES => true,       // do we allow to set ranges: >, >=, = etc.
+        self::OPT_OPTIMIZE => true,
+        self::OPT_DATE_FORMAT => 'Y-m-d\TH:i:sP',
     );
 
     /**
