@@ -57,8 +57,6 @@ class StringEmbeddedTypeEncoder implements EncoderInterface
 
         /** @var QuerySerializer $serializer */
         $serializer = $context[EncoderInterface::CONTEXT_SERIALIZER];
-        /** @var EmbeddedType $embedType */
-        $embedType = $context[EncoderInterface::CONTEXT_FILTER_TYPE];
         $encoding = $serializer->getOptions()->encoding;
 
         $len = mb_strlen($data, $encoding);
@@ -72,22 +70,7 @@ class StringEmbeddedTypeEncoder implements EncoderInterface
             return array();
         }
 
-        // backup
-        $serializerConstraints = $serializer->getOptions()->constraints;
-        $tableName = $serializer->getOptions()->tableName;
-
-        // unserialize embedded
-        $serializer->getOptions()->tableName =
-            $embedType->getOption(EmbeddedType::OPT_TABLE_NAME, EmbeddedType::DEFAULT_TABLE_NAME);
-        $serializer->getOptions()->constraints = $embedType->getOption(EmbeddedType::OPT_CONSTRAINTS, []);
-
-        $unserialized = $serializer->unserialize($data); // pass embedded constraints
-
-        // revert
-        $serializer->getOptions()->constraints = $serializerConstraints;
-        $serializer->getOptions()->tableName = $tableName;
-
-        return $unserialized;
+        return $data;
     }
 
     public function encode($data, $context = [])
