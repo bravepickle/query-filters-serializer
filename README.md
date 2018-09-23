@@ -16,6 +16,8 @@ Filters can be easily configured using configs per each field
     1. [URL Query Format](#url-query-fmt)
         1. [Additional Examples](#url-query-fmt-additional-examples)
 1. [Configuration](#config)
+1. [Advanced Usage](#advanced-usage)
+1. [TODOs](#todo)
 
 ## <a id="installation"></a>Installation
 Add to composer.json
@@ -176,7 +178,7 @@ TBD
 TBD
 
 
-### TODOs
+## <a id="todo"></a>TODOs
 
  - [ ] Write Tests
  - [ ] Support of recursive embedding filters
