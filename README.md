@@ -169,25 +169,30 @@ If you need to use it as single GET param in URI it is possible to use formattin
 | `_[age][]=<23&_[age][]=<2&_[age][]=<10`                                          | ['constraints' => ['age' => ['type' => 'integer']]]                                                                                                      | Will format it to age < 2                                                                                                              |
 | `_[age][]=18&_[age][]=20&_[age][]=21`                                            | ['constraints' => ['age' => ['type' => 'integer']]]                                                                                                      | Will search for records that have age either 18, or 20 or 21. (SQL IN(...))                                                            |
 
-
 ## <a id="config"></a>Configuration
+TBD
+
+## <a id="advanced-usage"></a>Advanced Usage
 TBD
 
 
 ### TODOs
 
- - Write Tests
- - Support of recursive embedding filters
- - Add JS serializer
- - Use dependency injection by splitting: Encoder, Normalizer. With interfaces, similar to Symfony's implementation
- - Use more objects and less arrays. E.g. serializer options, return
- - Use register method or DI for types add to serializer
- - Use interfaces in definitions instead of classes, when possible
- - Add loader interface and its implementation for filter types
- - Update docs
- - Implement Embedded type for UrlQueryEncoder
- - Use objects to populate resulting filter data
- - Implement serialization from array to string
+ - [ ] Write Tests
+ - [ ] Support of recursive embedding filters
+ - [ ] Add JS serializer
+ - [x] Use more objects and less arrays. E.g. serializer options, return
+ - [x] Use register method or DI for types add to serializer
+ - [ ] Use interfaces in definitions instead of classes, when possible
+ - [ ] Add loader interface and its implementation for filter types
+ - [ ] Update docs
+ - [ ] Implement Embedded type for UrlQueryEncoder
+ - [ ] Use objects to populate resulting filter data
+ - [ ] Implement serialization from array to string
+ - [ ] Add *Configuration* section to README with info on how to configure serializer and its components
+ - [ ] Add *Advanced Usage* section to README with info on how to customize serializer, extend filter types, 
+ loaders, encoders etc.
+ 
 
 License
 ----
