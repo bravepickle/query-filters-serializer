@@ -56,11 +56,14 @@ You can implement your own using existing ones as examples. To see more usage ex
 This is a custom string format that implements simple and efficient way to set filters. It is short, human readable. 
 See example below 
 ```php
+// ...
+use QueryFilterSerializer as App;
+
 $options = new App\Config\Options();
 $options->constraints = array('age' => array('type' => 'integer'));
 $filterString = 'age:>=14;<18'; // string to parse
 
-$serializer = new QuerySerializer();
+$serializer = new QuerySerializer(); // default encoder is StringEncoder so we can skip its init
 $serializer->setOptions($options);
 $filters = $serializer->unserialize($filterString);
 
@@ -111,6 +114,8 @@ This option is easily implemented on client side and is based regular URL query 
 automatically by your PHP application or by serializer itself from string. Can be sent directly in HTML forms and 
 may support the most complex cases for filtering data
 ```php
+// ...
+use QueryFilterSerializer as App;
 
 $options = new App\Config\Options();
 $options->constraints = array('age' => array('type' => 'integer'));
@@ -119,7 +124,7 @@ $filterQuery = '_[age][]=>=14&_[age][]=<18'; // string to parse
 
 $encoder = new App\Encoder\UrlQueryEncoder();
 $options->filterTypeEncoders[App\Filter\Type\EmbeddedType::NAME] =
-    App\Encoder\Filter\ArrayEmbeddedTypeEncoder::class;
+    App\Encoder\Filter\ArrayEmbeddedTypeEncoder::class; // required if embedded types should be supported
 $serializer = new QuerySerializer($options, $encoder);
 $filters = $serializer->unserialize($filterQuery);
 
@@ -145,7 +150,10 @@ array (
 
 ```
 This is longer variant of query filtering, less human readable. Better for embedded and custom filter types to support
-due to its solid URI component formatting rules supported by client & server from start
+due to its solid URI component formatting rules supported by client & server from start.
+
+If you need to use it as single GET param in URI it is possible to use formatting as following: 
+`'http://example.com?filter=' + urlencode('_[foo]=bar&_[foo]=>baz')`. 
 
 #### <a id="url-query-fmt-additional-examples"></a>Additional examples
 
