@@ -38,7 +38,7 @@ Add to composer.json
     - embedded
 - 2 formats of string queries to parse supported:
     - string: `foo:bar;baz|num:>10;<25|startDate:2000-10-01`
-    - URL query: associative array of values or string - `_[type]=cool&_[foo][]=bar&_[foo][]=baz&_[user][id]=1&_[user][name]=Paul`
+    - URL query: associative array of values or string - `_[foo][]=bar&_[foo][]=baz&_[user][id]=1&_[user][name]=Paul`
 - customizable, configurable easily
 - additional filters can be defined
 - returned parsed filters can be multi-level arrays and collections of objects (defined by config)
