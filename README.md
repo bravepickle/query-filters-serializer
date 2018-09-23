@@ -153,7 +153,7 @@ This is longer variant of query filtering, less human readable. Better for embed
 due to its solid URI component formatting rules supported by client & server from start.
 
 If you need to use it as single GET param in URI it is possible to use formatting as following: 
-`'http://example.com?filter=' + urlencode('_[foo]=bar&_[foo]=>baz')`. 
+`'http://example.com?filter=' + urlencode('_[foo]=bar&_[num]=>baz')`. 
 
 #### <a id="url-query-fmt-additional-examples"></a>Additional examples
 
