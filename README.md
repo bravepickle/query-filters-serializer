@@ -46,8 +46,11 @@ Add to composer.json
 - gives performance boost for developers to define complex logic of filtering records through collections without limiting them
 
 ## <a id="usage"></a>Usage
-Currently only 2 query serializer formats supported: String and URL Query. 
+Currently only 2 query serializer formats supported: *String* and *URL Query*. 
 You can implement your own using existing ones as examples. To see more usage examples, please refer to the provided [tests]
+
+* *String* format is better fit for API requests, using single parameter to pass all filters with not too complex filtering implementation
+* *URL Query* format can be fit for both regular web applications and API with more complex logic, embedded types 
 
 ### <a id="string-fmt"></a>String Format
 This is a custom string format that implements simple and efficient way to set filters. It is short, human readable. 
@@ -84,7 +87,7 @@ array (
 ```
 
 The main drawback may lie in its proper formatting on client side and escaping all special chars used for it, 
-is more error prone than URL query format when used without careful thinking beforehand. 
+is more error prone than *URL Query* format when used without careful thinking beforehand. 
 The good thing is that its that those are customizable and you can change them if needed or ensure that they won't appear in your
 queries
 
@@ -105,7 +108,8 @@ queries
 
 ### <a id="url-query-fmt"></a>URL Query Format
 This option is easily implemented on client side and is based regular URL query string format. It may be parsed 
-automatically by your PHP application or by serializer itself from string. 
+automatically by your PHP application or by serializer itself from string. Can be sent directly in HTML forms and 
+may support the most complex cases for filtering data
 ```php
 
 $options = new App\Config\Options();
@@ -140,6 +144,8 @@ array (
 );
 
 ```
+This is longer variant of query filtering, less human readable. Better for embedded and custom filter types to support
+due to its solid URI component formatting rules supported by client & server from start
 
 #### <a id="url-query-fmt-additional-examples"></a>Additional examples
 
