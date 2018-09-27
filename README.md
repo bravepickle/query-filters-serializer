@@ -16,6 +16,7 @@ Filters can be easily configured using configs per each field
     1. [URL Query Format](#url-query-fmt)
         1. [Additional Examples](#url-query-fmt-additional-examples)
 1. [Configuration](#config)
+1. [Usage with JS](#frontend)
 
 ## <a id="installation"></a>Installation
 Add to composer.json
@@ -159,6 +160,18 @@ array (
 ## <a id="config"></a>Configuration
 TBD
 
+## <a id="frontend"></a>Usage with JS
+To use those filters on client side one can use either custom solution or try to find existing.
+[QS](https://www.npmjs.com/package/qs) implements support for URL query encoding/decoding that can be used for 
+*URL Query* format filter.
+
+As for *String* format there is none existing yet. You can try implementing it on your own. One can just use plain text 
+style:
+```javascript
+var name = 'John Doe';
+var query = '_filters=categoryId:12|name:' + name;
+``` 
+Just don't forget to escape special chars and then URL encode query.
 
 ### TODOs
 
@@ -174,6 +187,7 @@ TBD
  - Implement Embedded type for UrlQueryEncoder
  - Use objects to populate resulting filter data
  - Implement serialization from array to string
+ - enlist all special chars for *String* format encoder
 
 License
 ----
