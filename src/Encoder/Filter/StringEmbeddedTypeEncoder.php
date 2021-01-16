@@ -61,7 +61,7 @@ class StringEmbeddedTypeEncoder implements EncoderInterface
 
         $len = mb_strlen($data, $encoding);
         $lastIndex = $len - 1;
-        if ($data{0} !== $this->options->wrapLeft || $data{$lastIndex} !== $this->options->wrapRight) {
+        if ($data[0] !== $this->options->wrapLeft || $data[$lastIndex] !== $this->options->wrapRight) {
             throw new ParsingException('Failed to parse filter value.');
         }
 

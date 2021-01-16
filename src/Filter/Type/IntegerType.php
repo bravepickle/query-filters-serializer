@@ -125,10 +125,10 @@ class IntegerType extends AbstractType
      */
     protected function parseValue($val)
     {
-        if (is_numeric($val{0})) { // is number
+        if (is_numeric($val[0])) { // is number
             $res = array('condition' => self::COND_EQUALS, 'value' => $val);
         } else {
-            if (isset($val{1}) && !is_numeric($val{1})) {
+            if (isset($val[1]) && !is_numeric($val[1])) {
                 $res['condition'] = substr($val, 0, 2);
                 $res['value'] = substr($val, 2);
             } else {
