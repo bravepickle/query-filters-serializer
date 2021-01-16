@@ -132,7 +132,7 @@ class IntegerType extends AbstractType
                 $res['condition'] = substr($val, 0, 2);
                 $res['value'] = substr($val, 2);
             } else {
-                $res['condition'] = $val{0};
+                $res['condition'] = $val[0];
                 $res['value'] = substr($val, 1);
             }
 
