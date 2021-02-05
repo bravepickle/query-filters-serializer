@@ -99,8 +99,6 @@ class BooleanType extends AbstractType
             'parameter' => [$fieldPh => (bool)$data['constraints'][0]['value']]
         ];
 
-//        \Doctrine\Common\Util\Debug::dump($sql, 4);die("\n" . __METHOD__ . ':' . __LINE__ . "\n");
-
         return $sql;
     }
 
